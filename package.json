@@ -1,0 +1,20 @@
+{
+  "name": "meu-livro-em-instante",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Plataforma Editorial Completa — Escrita, Cordel, Xilogravura, Diagramação e Publicação",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "server": "node --watch server/src/server.ts"
+  },
+  "dependencies": {
+    "dexie": "^4.0.11"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
+  }
+}

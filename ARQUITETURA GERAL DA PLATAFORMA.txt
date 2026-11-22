@@ -1,0 +1,43 @@
+# MEU LIVRO EM INSTANTE — FASE 2
+## ARQUITETURA GERAL DA PLATAFORMA
+
+Com base no relatório da FASE 1, prepare a arquitetura técnica definitiva do MEU LIVRO EM INSTANTE.
+
+Objetivo: organizar uma plataforma editorial modular, escalável, profissional e integrada.
+
+### ESTÚDIOS PRINCIPAIS
+
+1. Estúdio Literário: livros, romances, poesias, biografias, contos e crônicas.
+2. Estúdio Infantil e Juvenil: histórias, personagens, ilustrações e quadrinhos.
+3. Estúdio de Cordel: versos, métricas, rimas, xilogravuras e livretos.
+4. Estúdio Jornalístico: jornais, revistas, notícias e reportagens.
+5. Estúdio Gráfico: capas, ilustrações, diagramação e impressão.
+6. Estúdio de Publicação: PDF, EPUB, audiolivros e distribuição.
+
+### REQUISITOS ARQUITETÔNICOS
+
+- Preservar tecnologias e funcionalidades existentes sempre que viável.
+- Evitar reconstruções desnecessárias.
+- Criar componentes compartilhados.
+- Separar os editores especializados.
+- Definir comunicação entre os módulos.
+- Definir estrutura do banco de dados.
+- Organizar autenticação e permissões.
+- Planejar armazenamento e recuperação de arquivos.
+- Planejar integrações com serviços de IA.
+- Definir tratamento de erros e registros de atividades.
+
+### DOCUMENTAÇÃO OBRIGATÓRIA
+
+Produza:
+- ARQUITETURA_GERAL.md
+- MAPA_DE_MODULOS.md
+- MODELO_DE_DADOS.md
+- PLANO_DE_INTEGRACAO_IA.md
+- PLANO_DE_TESTES.md
+
+Não elimine funcionalidades existentes.
+
+Não substitua tecnologias sem apresentar justificativa técnica.
+
+Nesta fase, apresente a arquitetura e o plano de implementação. Aguarde aprovação antes de iniciar as alterações estruturais.

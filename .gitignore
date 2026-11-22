@@ -1,0 +1,13 @@
+# Logs e dependências
+node_modules/
+dist/
+.DS_Store
+
+# Variáveis de ambiente e segredos
+.env
+.env.local
+server/.env
+
+# Arquivos temporários
+*.log
+scratch/

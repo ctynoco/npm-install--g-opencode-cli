@@ -1,0 +1,86 @@
+# MEU LIVRO EM INSTANTE — FASE 1
+## AUDITORIA TÉCNICA E FUNCIONAL COMPLETA
+
+Atue como arquiteto de software, engenheiro de sistemas e especialista em plataformas editoriais com Inteligência Artificial.
+
+Sua primeira tarefa é realizar uma auditoria completa do projeto MEU LIVRO EM INSTANTE.
+
+ATENÇÃO: NESTA FASE, NÃO MODIFIQUE, NÃO EXCLUA E NÃO SUBSTITUA ARQUIVOS OU FUNCIONALIDADES.
+
+### 1. ANALISE O PROJETO
+- Examine a estrutura completa de pastas e arquivos.
+- Identifique tecnologias e frameworks utilizados.
+- Identifique banco de dados e integrações.
+- Identifique componentes reutilizáveis.
+- Examine as rotas e os menus.
+- Identifique funcionalidades existentes.
+- Identifique funcionalidades incompletas.
+- Identifique erros e problemas técnicos.
+
+### 2. AUDITE OS MÓDULOS EDITORIAIS
+
+Verifique a existência e o funcionamento de:
+
+1. Editor de livros.
+2. Editor de revistas.
+3. Editor de jornais.
+4. Estúdio de literatura de cordel.
+5. Criador de xilogravuras.
+6. Criador de histórias infantis.
+7. Criador de histórias para adolescentes.
+8. Criador de personagens.
+9. Revisor ortográfico brasileiro.
+10. Assistente de Inteligência Artificial.
+11. Criador de capas e ilustrações.
+12. Diagramador profissional.
+13. Paginação automática.
+14. Exportação PDF e EPUB.
+15. Biblioteca e gerenciamento de projetos.
+16. Salvamento automático e recuperação de documentos.
+
+### 3. CLASSIFIQUE CADA FUNCIONALIDADE
+
+Utilize quatro classificações:
+
+- IMPLEMENTADA E FUNCIONANDO.
+- IMPLEMENTADA PARCIALMENTE.
+- EXISTE, MAS APRESENTA ERROS.
+- NÃO IMPLEMENTADA.
+
+Não considere uma tela ou botão como funcionalidade concluída sem testar seu comportamento.
+
+### 4. IDENTIFIQUE OS RISCOS
+
+Verifique:
+- Duplicidade de componentes.
+- Problemas de arquitetura.
+- Falhas de persistência.
+- Perda de conteúdo.
+- Problemas de navegação.
+- Dependências ausentes.
+- Falhas de segurança.
+- Problemas de responsividade.
+- Dificuldades de integração entre módulos.
+
+### 5. PRODUZA UM RELATÓRIO
+
+Crie o documento AUDITORIA_GERAL_MEULIVRO.md contendo:
+
+- Resumo executivo.
+- Estrutura atual do projeto.
+- Tecnologias identificadas.
+- Relação de módulos.
+- Situação de cada funcionalidade.
+- Problemas encontrados.
+- Riscos técnicos.
+- Melhorias necessárias.
+- Dependências e integrações pendentes.
+- Recomendações de prioridades.
+
+### 6. PLANO DE CONTINUIDADE
+
+Apresente um plano de desenvolvimento dividido em etapas, preservando todos os recursos existentes.
+
+Não inicie a implementação das melhorias nesta fase.
+
+Ao terminar, apresente o relatório e aguarde autorização para iniciar a FASE 2.

@@ -1,0 +1,15 @@
+{
+  "name": "meu-livro-em-instante-server",
+  "version": "1.0.0",
+  "description": "Backend Proxy Seguro (BFF) para Meu Livro em Instante",
+  "main": "src/server.ts",
+  "type": "module",
+  "scripts": {
+    "start": "node --loader ts-node/esm src/server.ts",
+    "dev": "node --watch src/server.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  }
+}
+

@@ -1,0 +1,52 @@
+# MEU LIVRO EM INSTANTE — FASE FINAL
+## HOMOLOGAÇÃO, TESTES E ENTREGA
+
+Atue como equipe independente de qualidade de software.
+
+Faça uma auditoria completa da plataforma depois da implementação.
+
+TESTE:
+
+1. Login e permissões.
+2. Criação, edição e exclusão controlada de projetos.
+3. Editor de texto.
+4. Copiar, colar e inserir imagens.
+5. Salvamento automático.
+6. Recuperação de documentos.
+7. Inteligência Artificial.
+8. Originalidade e coerência das histórias.
+9. Revisor ortográfico brasileiro.
+10. Métricas e rimas do Cordel.
+11. Criação de xilogravuras.
+12. Criação de livros infantis e juvenis.
+13. Editor de jornais e revistas.
+14. Paginação e numeração.
+15. Sumário automático.
+16. Capas e contracapas.
+17. Exportação PDF.
+18. Exportação EPUB.
+19. Responsividade.
+20. Segurança e persistência dos dados.
+
+Para cada teste, registre:
+- Funcionalidade testada.
+- Procedimento.
+- Resultado esperado.
+- Resultado obtido.
+- Erros encontrados.
+- Correção aplicada.
+- Situação final.
+
+Não marque como aprovado um recurso que não tenha sido efetivamente testado.
+
+Corrija os problemas encontrados sem comprometer funcionalidades aprovadas.
+
+Produza:
+- RELATORIO_FINAL_DE_TESTES.md
+- LISTA_DE_PENDENCIAS.md
+- MANUAL_DO_USUARIO.md
+- MANUAL_TECNICO.md
+
+Entregue um relatório final com as funcionalidades aprovadas, pendentes e não implementadas.
+
+Não declare o projeto concluído enquanto existirem falhas críticas ou funcionalidades obrigatórias sem validação.

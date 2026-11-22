@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEU LIVRO EM INSTANTE — Sistema de Leitura Automática (Cria e Lê)</title>
+  <style>
+    :root {
+      --navy: #163653;
+      --blue: #2e6f9e;
+      --gold: #c49a45;
+      --bg: #f4f7fa;
+      --card: #ffffff;
+      --text: #22313f;
+      --highlight: #ffeaa7;
+      --border: #dce4ec;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(22, 54, 83, 0.1);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .header {
+      background: var(--navy);
+      color: #fff;
+      padding: 24px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header h1 {
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge {
+      background: var(--gold);
+      color: #111;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+    .content {
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+    select, input, textarea {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--blue);
+    }
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    .actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    button {
+      padding: 12px 22px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-primary { background: #27ae60; color: #fff; }
+    .btn-secondary { background: var(--blue); color: #fff; }
+    .btn-outline { background: #fff; border: 1px solid var(--border); color: var(--navy); }
+    .btn-danger { background: #e74c3c; color: #fff; }
+    
+    .status-indicator {
+      font-size: 13px;
+      font-weight: 600;
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #95a5a6;
+    }
+    .status-dot.active { background: #27ae60; animation: pulse 1.2s infinite; }
+    @keyframes pulse {
+      0% { opacity: 0.5; }
+      50% { opacity: 1; }
+      100% { opacity: 0.5; }
+    }
+    .reader-screen {
+      background: #fafaf8;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      min-height: 200px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: Georgia, serif;
+      font-size: 18px;
+      line-height: 1.7;
+      color: #222;
+      position: relative;
+    }
+    .highlight-word {
+      background: var(--highlight);
+      border-radius: 3px;
+      padding: 2px 4px;
+      font-weight: bold;
+      color: #111;
+      transition: background 0.1s;
+    }
+    .voice-settings {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      background: #f0f4f8;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+    .speed-slider {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>🔊 MEU LIVRO EM INSTANTE</h1>
+    <span class="badge">Leitura Automática (Cria e Lê)</span>
+  </div>
+
+  <div class="content">
+    <div class="controls-grid">
+      <div class="field">
+        <label>Estúdio / Gênero</label>
+        <select id="studioSelect">
+          <option value="literario">Estúdio Literário (Romance / Prosa)</option>
+          <option value="cordel" selected>Estúdio de Cordel (Versos e Rimas)</option>
+          <option value="infantil">Estúdio Infantil (Fábulas Infantis)</option>
+          <option value="jornal">Estúdio Jornalístico (Notícia Falada)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Voz Brasileira</label>
+        <select id="voiceSelect">
+          <option value="">Carregando vozes do sistema...</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Ideia para a História (ou digite seu próprio texto)</label>
+      <textarea id="promptInput" placeholder="Ex: Crie um cordel sobre a coragem de uma jovem sertaneja que construiu uma biblioteca de barro no meio da caatinga.">No sertão do Cariri
+Uma jovem decidida
+Resolveu mudar a história
+E os caminhos de sua vida
+Fez com barro e muito amor
+Uma casa acolhedora
+Onde o livro é professor.</textarea>
+    </div>
+
+    <div class="voice-settings">
+      <div class="speed-slider">
+        <label for="speedRange">Velocidade:</label>
+        <input type="range" id="speedRange" min="0.5" max="1.8" step="0.1" value="1.0">
+        <span id="speedValue">1.0x</span>
+      </div>
+      <div>
+        <label><input type="checkbox" id="autoReadCheck" checked> Iniciar leitura automática imediatamente</label>
+      </div>
+    </div>
+
+    <div class="actions-bar">
+      <button class="btn-primary" id="btnCreateAndRead" onclick="handleCreateAndRead()">✨ Criar e Ler em Voz Alta</button>
+      <button class="btn-secondary" id="btnReadNow" onclick="handleReadText()">▶ Ler Texto Atual</button>
+      <button class="btn-outline" id="btnPause" onclick="handlePauseResume()">⏸ Pausar / Retomar</button>
+      <button class="btn-danger" id="btnStop" onclick="handleStop()">⏹ Parar</button>
+
+      <div class="status-indicator">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Pronto</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Acompanhamento de Leitura (com destaque da fala em tempo real):</label>
+      <div class="reader-screen" id="readerScreen">
+        Clique em <b>"Criar e Ler em Voz Alta"</b> ou <b>"Ler Texto Atual"</b> para ouvir a narração sincronizada com a voz brasileira.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let synth = window.speechSynthesis;
+  let currentUtterance = null;
+  let isSpeaking = false;
+  let fullTextToRead = '';
+
+  // Carrega vozes brasileiras
+  function populateVoices() {
+    if (!synth) return;
+    const voices = synth.getVoices().filter(v => v.lang.toLowerCase().includes('pt') || v.lang.toLowerCase().includes('br'));
+    const select = document.getElementById('voiceSelect');
+    select.innerHTML = '';
+
+    if (voices.length === 0) {
+      select.innerHTML = '<option value="">Voz padrão do sistema (Português)</option>';
+      return;
+    }
+
+    voices.forEach((voice, index) => {
+      const opt = document.createElement('option');
+      opt.value = index;
+      opt.textContent = `${voice.name} (${voice.lang})`;
+      if (voice.name.toLowerCase().includes('google') || voice.name.toLowerCase().includes('natural') || voice.name.toLowerCase().includes('luciana')) {
+        opt.selected = true;
+      }
+      select.appendChild(opt);
+    });
+  }
+
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = populateVoices;
+  }
+  populateVoices();
+
+  // Controle de velocidade
+  const speedRange = document.getElementById('speedRange');
+  const speedValue = document.getElementById('speedValue');
+  speedRange.addEventListener('input', () => {
+    speedValue.textContent = speedRange.value + 'x';
+    if (synth.speaking && !synth.paused) {
+      handleReadText(); // Reinicia com nova velocidade
+    }
+  });
+
+  function setStatus(text, isActive = false) {
+    document.getElementById('statusText').textContent = text;
+    const dot = document.getElementById('statusDot');
+    if (isActive) dot.classList.add('active');
+    else dot.classList.remove('active');
+  }
+
+  // Exemplos rápidos por estúdio
+  document.getElementById('studioSelect').addEventListener('change', (e) => {
+    const val = e.target.value;
+    const promptInput = document.getElementById('promptInput');
+    if (val === 'cordel') {
+      promptInput.value = `No sertão do Cariri\nUma jovem decidida\nResolveu mudar a história\nE os caminhos de sua vida\nFez com barro e muito amor\nUma casa acolhedora\nOnde o livro é professor.`;
+    } else if (val === 'infantil') {
+      promptInput.value = `Era uma vez um jacarezinho chamado Joca, que tinha medo de nadar na água funda da lagoa. Um dia, uma borboleta azul pousou em seu focinho e disse com carinho: "Joca, a coragem não é não ter medo, é dar o primeiro mergulho!"`;
+    } else if (val === 'jornal') {
+      promptInput.value = `CIDADE EM DESTAQUE\nInaugurada na manhã desta terça-feira a maior feira literária do interior, reunindo autores independentes, oficinas de xilogravura e espaço dedicado à contação de histórias para crianças.`;
+    } else {
+      promptInput.value = `A tarde caía lenta sobre as montanhas antigas, dourando os telhados coloniais. Mariana fechou o caderno de anotações e olhou pela janela, sentindo que aquele dia marcaria o início de sua maior jornada literária.`;
+    }
+  });
+
+  // Função "Criar e Ler"
+  async function handleCreateAndRead() {
+    handleStop();
+    setStatus('Criando texto...', true);
+
+    const studio = document.getElementById('studioSelect').value;
+    const promptIdea = document.getElementById('promptInput').value;
+    const readerScreen = document.getElementById('readerScreen');
+
+    readerScreen.innerHTML = '<em>Aguardando geração do texto e preparando voz...</em>';
+
+    // Simula geração inteligente ou consome o texto atual e inicia leitura
+    setTimeout(() => {
+      fullTextToRead = promptIdea;
+      readerScreen.textContent = fullTextToRead;
+      setStatus('Lendo texto em voz alta...', true);
+      handleReadText();
+    }, 600);
+  }
+
+  // Função Ler Texto com Destaque
+  function handleReadText() {
+    handleStop();
+
+    const text = document.getElementById('promptInput').value.trim();
+    if (!text) return;
+
+    fullTextToRead = text;
+    const readerScreen = document.getElementById('readerScreen');
+    readerScreen.textContent = fullTextToRead;
+
+    currentUtterance = new SpeechSynthesisUtterance(fullTextToRead);
+    currentUtterance.lang = 'pt-BR';
+    currentUtterance.rate = parseFloat(speedRange.value) || 1.0;
+
+    const voices = synth.getVoices().filter(v => v.lang.toLowerCase().includes('pt') || v.lang.toLowerCase().includes('br'));
+    const selectedIndex = document.getElementById('voiceSelect').value;
+    if (voices[selectedIndex]) {
+      currentUtterance.voice = voices[selectedIndex];
+    }
+
+    currentUtterance.onstart = () => {
+      isSpeaking = true;
+      setStatus('Lendo em voz alta...', true);
+    };
+
+    // Destaque visual da palavra falada em tempo real (Efeito Karaokê)
+    currentUtterance.onboundary = (event) => {
+      if (event.name === 'word') {
+        const charIndex = event.charIndex;
+        const sub = fullTextToRead.substring(charIndex);
+        const match = sub.match(/^\S+/);
+        const wordLength = match ? match[0].length : 0;
+
+        const before = fullTextToRead.substring(0, charIndex);
+        const word = fullTextToRead.substring(charIndex, charIndex + wordLength);
+        const after = fullTextToRead.substring(charIndex + wordLength);
+
+        readerScreen.innerHTML = `${escapeHtml(before)}<span class="highlight-word">${escapeHtml(word)}</span>${escapeHtml(after)}`;
+      }
+    };
+
+    currentUtterance.onend = () => {
+      isSpeaking = false;
+      setStatus('Leitura concluída', false);
+      readerScreen.textContent = fullTextToRead; // remove o highlight final
+    };
+
+    currentUtterance.onerror = (e) => {
+      isSpeaking = false;
+      setStatus('Pronto', false);
+      console.warn('Erro na síntese:', e);
+    };
+
+    synth.speak(currentUtterance);
+  }
+
+  function handlePauseResume() {
+    if (!synth) return;
+    if (synth.speaking && !synth.paused) {
+      synth.pause();
+      setStatus('Pausado', false);
+    } else if (synth.paused) {
+      synth.resume();
+      setStatus('Lendo...', true);
+    }
+  }
+
+  function handleStop() {
+    if (synth) {
+      synth.cancel();
+      isSpeaking = false;
+      setStatus('Pronto', false);
+    }
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+</script>
+
+</body>
+</html>
