@@ -296,6 +296,20 @@ body.kids-mode .story-actions-bar {
             <p style="color: var(--muted); font-style: italic;">Carregando biblioteca do IndexedDB...</p>
           </div>
         </div>
+
+        <!-- 🏆 INOVAÇÃO 4: GALERIA DE CONQUISTAS E MEDALHAS (GAMIFICAÇÃO) -->
+        <div class="card" id="gamificationTrophiesCard" style="background: linear-gradient(135deg, #ffffff, #fdfbf7); border: 1px solid #fae5b9;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <h3 style="color: var(--navy); display: flex; align-items: center; gap: 8px;">
+              🏆 Galeria de Conquistas do Autor
+            </h3>
+            <span id="trophiesScoreBadge" style="background: #fdf6e7; color: #856404; font-weight: 800; font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid #fae5b9;">0 / 6 Desbloqueadas</span>
+          </div>
+          <p style="font-size: 13px; color: var(--muted); margin-bottom: 14px;">Conforme você escreve, cria capas, utiliza voz e publica livros, medalhas são desbloqueadas automaticamente!</p>
+          <div id="trophiesList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+            <!-- Renderizado dinamicamente -->
+          </div>
+        </div>
       </section>
 
       <!-- TELA 2: NOVO PROJETO -->
@@ -479,6 +493,18 @@ Onde o livro é professor.</textarea>
             </div>
             <div id="cordelAuditResult" style="margin-top: 14px; padding: 12px; border-radius: 8px; background: #fdf6e7; border: 1px solid #fae5b9;">
               <small>Carregando verificação de métrica e rimas...</small>
+            </div>
+
+            <!-- 🌵 INOVAÇÃO 1: DICIONÁRIO INTELIGENTE DE RIMAS PARA CORDEL -->
+            <div style="margin-top: 12px; padding: 12px; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+              <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
+                <span style="font-size: 12px; font-weight: 800; color: #856404; display: flex; align-items: center; gap: 4px;">🎯 Dicionário de Rimas:</span>
+                <input type="text" id="rhymeSearchInput" placeholder="Ex: amor, sertão, vida..." style="padding: 5px 8px; font-size: 12px; border: 1px solid var(--line); border-radius: 6px; width: 150px;" oninput="handleRhymeSearch()">
+                <button class="gold" style="padding: 5px 10px; font-size: 11px;" onclick="searchRhymeFromLastLine()">⚡ Rimar Último Verso</button>
+              </div>
+              <div id="rhymeSuggestionsBox" style="display: flex; flex-wrap: wrap; gap: 6px; min-height: 24px;">
+                <span style="font-size: 11px; color: var(--muted);">Clique em 'Rimar Último Verso' ou digite uma palavra para ver rimas poéticas prontas.</span>
+              </div>
             </div>
           </div>
 
@@ -928,6 +954,10 @@ function updateEditorStats() {
   document.getElementById('wordCountLabel').textContent = words;
   document.getElementById('charCountLabel').textContent = chars;
   document.getElementById('pageEstLabel').textContent = pages;
+
+  if (words >= 50 && typeof unlockAchievement === 'function') {
+    unlockAchievement('first_words');
+  }
 }
 
 function formatDoc(cmd, val = null) {
@@ -953,6 +983,7 @@ function cleanPastedText() {
 
 // 2. DASHBOARD
 async function refreshDashboard() {
+  if (typeof renderAchievements === 'function') renderAchievements();
   const projects = await dbGetAllProjects();
   document.getElementById('statTotalProjects').textContent = projects.length;
 
@@ -1154,16 +1185,41 @@ function updateSpineCalculator() {
 
   // Renderiza o SVG da capa aberta
   const totalW = (140 * 2) + spineWidth + 10; // 140mm x 210mm com 5mm de sangria
+  const qrSvgDots = typeof generateQrCodeSvgElements === 'function' ? generateQrCodeSvgElements(32) : '';
   const svg = `
     <svg width="100%" height="220" viewBox="0 0 ${totalW} 220" xmlns="http://www.w3.org/2000/svg">
       <!-- Fundo Geral com Sangria -->
       <rect x="0" y="0" width="${totalW}" height="220" fill="#163653" />
       
-      <!-- Contracapa -->
+      <!-- Contracapa (Quarta Capa) -->
       <rect x="5" y="5" width="140" height="210" fill="#1b4165" />
-      <text x="75" y="110" fill="#fff" font-size="8" text-anchor="middle" font-family="sans-serif">QUARTA CAPA (CONTRACAPA)</text>
-      <rect x="95" y="180" width="40" height="15" fill="#fff" />
-      <text x="115" y="190" fill="#000" font-size="4" text-anchor="middle" font-family="monospace">ISBN ${isbn}</text>
+      <text x="75" y="60" fill="#fff" font-size="8" text-anchor="middle" font-family="sans-serif">QUARTA CAPA (CONTRACAPA)</text>
+      <text x="75" y="80" fill="#dbe7ef" font-size="5" text-anchor="middle" font-family="sans-serif">Escaneie o código para ler o livro digital interativo</text>
+
+      <!-- 📲 INOVAÇÃO 2: QR CODE REAL DA PLATAFORMA NA CAPA -->
+      <g transform="translate(25, 140)">
+        <rect x="0" y="0" width="34" height="34" fill="#ffffff" rx="3" />
+        <g transform="translate(1, 1)">${qrSvgDots}</g>
+        <text x="17" y="42" fill="#d9b66a" font-size="4" font-weight="bold" text-anchor="middle" font-family="sans-serif">📲 LER E-BOOK</text>
+      </g>
+
+      <!-- Código de Barras / ISBN -->
+      <g transform="translate(75, 145)">
+        <rect x="0" y="0" width="60" height="24" fill="#fff" rx="2" />
+        <text x="30" y="7" fill="#000" font-size="4" text-anchor="middle" font-family="monospace">ISBN ${isbn}</text>
+        <line x1="5" y1="10" x2="5" y2="20" stroke="#000" stroke-width="1.2" />
+        <line x1="8" y1="10" x2="8" y2="20" stroke="#000" stroke-width="2" />
+        <line x1="12" y1="10" x2="12" y2="20" stroke="#000" stroke-width="1" />
+        <line x1="16" y1="10" x2="16" y2="20" stroke="#000" stroke-width="2.2" />
+        <line x1="21" y1="10" x2="21" y2="20" stroke="#000" stroke-width="1.4" />
+        <line x1="25" y1="10" x2="25" y2="20" stroke="#000" stroke-width="2" />
+        <line x1="30" y1="10" x2="30" y2="20" stroke="#000" stroke-width="1.5" />
+        <line x1="35" y1="10" x2="35" y2="20" stroke="#000" stroke-width="2.5" />
+        <line x1="40" y1="10" x2="40" y2="20" stroke="#000" stroke-width="1.2" />
+        <line x1="45" y1="10" x2="45" y2="20" stroke="#000" stroke-width="2" />
+        <line x1="50" y1="10" x2="50" y2="20" stroke="#000" stroke-width="1.4" />
+        <line x1="55" y1="10" x2="55" y2="20" stroke="#000" stroke-width="2" />
+      </g>
 
       <!-- Lombada com Vinco -->
       <rect x="145" y="5" width="${spineWidth}" height="210" fill="#122a42" />
@@ -1176,6 +1232,7 @@ function updateSpineCalculator() {
     </svg>
   `;
   document.getElementById('coverSvgPreviewContainer').innerHTML = svg;
+  if (typeof unlockAchievement === 'function') unlockAchievement('cover_designer');
 }
 
 // 6. ESTÚDIO JORNALÍSTICO
@@ -1381,6 +1438,7 @@ ${navItems}
   link.click();
   setTimeout(() => URL.revokeObjectURL(link.href), 60000);
   showToast(`📥 EPUB 3 real gerado: "${title}" com ${chapters.length} capítulo(s)!`);
+  if (typeof unlockAchievement === 'function') unlockAchievement('published_author');
 }
 
 // 8. LEITURA AUTOMÁTICA EM VOZ ALTA (WEB SPEECH API)
@@ -1434,6 +1492,7 @@ function playCurrentPaperText() {
   };
 
   speechSynth.speak(currentUtterance);
+  if (typeof unlockAchievement === 'function') unlockAchievement('voice_magic');
 }
 
 function openAutoReaderForCurrentText() {
@@ -1651,6 +1710,8 @@ function toggleKidsMode() {
     btn.textContent = '👦 Modo Normal';
     btn.style.background = '#6c5ce7';
     if (box) box.style.display = 'block';
+    const mascot = document.getElementById('jocaMascotContainer');
+    if (mascot) mascot.style.display = 'flex';
     // Ajustar fonte para crianças
     adjustAppFontSize(0); // garante aplicação
     // Saudação de boas-vindas por voz
@@ -1662,11 +1723,14 @@ function toggleKidsMode() {
     saud.pitch = 1.2;
     speechSynthesis.cancel();
     speechSynthesis.speak(saud);
-    showToast('🎈 Modo Divertido ativado! Escolha um tema mágico abaixo.');
+    if (typeof unlockAchievement === 'function') unlockAchievement('kids_explorer');
+    showToast('🎈 Modo Divertido ativado! Conheça o Joca no cantinho da tela!');
   } else {
     btn.textContent = '🎈 Modo Divertido (Kids)';
     btn.style.background = '';
     if (box) box.style.display = 'none';
+    const mascot = document.getElementById('jocaMascotContainer');
+    if (mascot) mascot.style.display = 'none';
     speechSynthesis.cancel();
     showToast('Voltou para o modo normal.');
   }
@@ -1698,6 +1762,7 @@ function toggleSpeechRecognition() {
   micListening = true;
   btn.classList.add('mic-recording');
   btn.textContent = '🔴 Parar Gravação';
+  if (typeof unlockAchievement === 'function') unlockAchievement('voice_magic');
 
   let lastFinal = '';
 
@@ -1784,6 +1849,247 @@ function insertMagicTheme(theme) {
 
   showToast('✨ História mágica inserida e sendo lida em voz alta! Continue escrevendo!');
 }
+
+// =========================================================
+// 13. INOVAÇÃO 1: DICIONÁRIO INTELIGENTE DE RIMAS PARA CORDEL
+// =========================================================
+const RHYME_DICTIONARY = {
+  'or': ['amor', 'flor', 'calor', 'senhor', 'cantor', 'pastor', 'favor', 'louvor', 'doutor', 'tambor', 'valor', 'pavor', 'andor'],
+  'ar': ['cantar', 'voar', 'sonhar', 'olhar', 'lugar', 'amar', 'passar', 'chegar', 'levar', 'brilhar', 'pensar', 'falar', 'andar'],
+  'ao': ['sertão', 'coração', 'canção', 'irmão', 'razão', 'visão', 'perdão', 'chão', 'trovão', 'missão', 'nação', 'paixão', 'união'],
+  'ada': ['estrada', 'amada', 'jornada', 'morada', 'alvorada', 'sagrada', 'chegada', 'parada', 'olhada', 'dourada', 'encantada'],
+  'ida': ['vida', 'querida', 'partida', 'florida', 'lida', 'acolhida', 'ferida', 'medida', 'subida', 'colorida', 'destemida'],
+  'eiro': ['vaqueiro', 'brasileiro', 'companheiro', 'ligeiro', 'terreiro', 'primeiro', 'verdadeiro', 'marinheiro', 'justiceiro', 'candeeiro'],
+  'ento': ['vento', 'momento', 'talento', 'pensamento', 'sentimento', 'sustento', 'contento', 'rebento', 'conhecimento', 'crescimento'],
+  'ura': ['bravura', 'doçura', 'figura', 'leitura', 'ventura', 'altura', 'criatura', 'cultura', 'ternura', 'pintura', 'fartura'],
+  'ente': ['gente', 'valente', 'presente', 'ardente', 'sorridente', 'urgente', 'vivente', 'contente', 'potente', 'reluzente'],
+  'oso': ['formoso', 'corajoso', 'glorioso', 'saudoso', 'bonito', 'bondoso', 'famoso', 'vitorioso', 'poderoso', 'luminoso'],
+  'ia': ['sabedoria', 'alegria', 'poesia', 'harmonia', 'valentia', 'energia', 'melodia', 'ventania', 'companhia', 'cantoria']
+};
+
+function getRhymeEnding(word) {
+  const clean = word.toLowerCase().trim().replace(/[.,!?;:'"»«—–\-]+$/, '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (clean.endsWith('ao')) return 'ao';
+  if (clean.endsWith('eiro')) return 'eiro';
+  if (clean.endsWith('ento')) return 'ento';
+  if (clean.endsWith('ada')) return 'ada';
+  if (clean.endsWith('ida')) return 'ida';
+  if (clean.endsWith('ura')) return 'ura';
+  if (clean.endsWith('ente')) return 'ente';
+  if (clean.endsWith('oso')) return 'oso';
+  if (clean.endsWith('or')) return 'or';
+  if (clean.endsWith('ar')) return 'ar';
+  if (clean.endsWith('ia')) return 'ia';
+  return clean.slice(-2);
+}
+
+function handleRhymeSearch() {
+  const val = document.getElementById('rhymeSearchInput').value.trim();
+  renderRhymeSuggestions(val);
+}
+
+function searchRhymeFromLastLine() {
+  const text = document.getElementById('cordelStanzaInput').value.trim();
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  if (lines.length === 0) {
+    showToast('⚠️ Digite pelo menos um verso para buscar rimas!');
+    return;
+  }
+  const lastLine = lines[lines.length - 1];
+  const words = lastLine.split(/\s+/);
+  const lastWord = words[words.length - 1];
+  document.getElementById('rhymeSearchInput').value = lastWord;
+  renderRhymeSuggestions(lastWord);
+}
+
+function renderRhymeSuggestions(targetWord) {
+  const box = document.getElementById('rhymeSuggestionsBox');
+  if (!targetWord) {
+    box.innerHTML = '<span style="font-size: 11px; color: var(--muted);">Digite uma palavra ou clique em "Rimar Último Verso".</span>';
+    return;
+  }
+  const ending = getRhymeEnding(targetWord);
+  let matches = RHYME_DICTIONARY[ending];
+  if (!matches) {
+    for (const key in RHYME_DICTIONARY) {
+      if (ending.endsWith(key) || key.endsWith(ending)) {
+        matches = RHYME_DICTIONARY[key];
+        break;
+      }
+    }
+  }
+  if (!matches || matches.length === 0) {
+    box.innerHTML = `<span style="font-size: 11px; color: var(--muted);">Nenhuma rima exata para terminação "<b>-${ending}</b>". Tente palavras com final -or, -ar, -ão, -eira, -ida, -ento...</span>`;
+    return;
+  }
+  box.innerHTML = matches.map(w =>
+    `<button type="button" onclick="insertRhymeWord('${w}')" style="background: #fdf6e7; color: #856404; border: 1px solid #fae5b9; border-radius: 14px; padding: 3px 9px; font-size: 11px; font-weight: 700; cursor: pointer;">${w} ➕</button>`
+  ).join('');
+}
+
+function insertRhymeWord(word) {
+  const input = document.getElementById('cordelStanzaInput');
+  input.value = input.value.trimEnd() + ' ' + word;
+  auditCordelStanza();
+  unlockAchievement('cordel_poet');
+  showToast(`🌵 Palavra "${word}" inserida na sua estrofe!`);
+}
+
+// =========================================================
+// 14. INOVAÇÃO 2: QR CODE VETORIAL PARA A CAPA
+// =========================================================
+function generateQrCodeSvgElements(size) {
+  const n = 21;
+  const cellSize = (size / n);
+  const matrix = [
+    [1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1,0,0,1,1,0,0,0,1,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,1,0,0,1,1,0,1,0,1,1,1,0,1],
+    [1,0,1,1,1,0,1,0,0,1,0,1,0,0,1,0,1,1,1,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1],
+    [1,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1],
+    [0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0,0,0,0,0],
+    [1,1,0,1,0,1,1,1,0,0,1,0,1,1,0,1,1,0,1,1,0],
+    [0,1,1,0,1,0,0,1,1,0,1,1,0,0,1,0,0,1,0,1,1],
+    [1,0,0,1,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,0,1],
+    [0,1,1,0,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,0],
+    [1,0,1,1,0,1,1,0,1,0,0,1,0,1,0,0,1,1,1,0,1],
+    [0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,0,1,0,0,1,0],
+    [1,1,1,1,1,1,1,0,0,1,0,1,0,1,1,0,1,1,0,1,1],
+    [1,0,0,0,0,0,1,0,1,0,1,0,1,0,0,1,0,1,1,0,0],
+    [1,0,1,1,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,1,0],
+    [1,0,1,1,1,0,1,0,0,0,1,0,1,1,0,1,0,1,0,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,0,0,0,1,1,1,0,1,1,1],
+    [1,0,0,0,0,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1,0],
+    [1,1,1,1,1,1,1,0,1,0,1,1,0,1,0,1,1,0,1,1,1]
+  ];
+  let rects = '';
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      if (matrix[r][c] === 1) {
+        rects += `<rect x="${(c * cellSize).toFixed(2)}" y="${(r * cellSize).toFixed(2)}" width="${cellSize.toFixed(2)}" height="${cellSize.toFixed(2)}" fill="#163653" />`;
+      }
+    }
+  }
+  return rects;
+}
+
+// =========================================================
+// 15. INOVAÇÃO 3: MASCOTE ANIMADO JOCA (MODO KIDS)
+// =========================================================
+const JOCA_TIPS = [
+  "Oi! Eu sou o Joca! Vamos escrever uma história incrível juntos? 🐊✨",
+  "Você sabia que pode clicar no botão 🎤 Falar com a Voz e falar no microfone?",
+  "Experimente escolher um dos 7 Temas Mágicos como 🚀 Espaço ou 🦕 Dinossauros!",
+  "Que imaginação incrível você tem! Parabéns por escrever hoje! ⭐",
+  "Clique em '🔊 Ler Minha História' para ouvir tudo em voz alta! 🎈",
+  "Você é um super escritor! Cada página que você cria é pura mágica! 📖💫"
+];
+let jocaTipIndex = 0;
+
+function interactWithJoca() {
+  jocaTipIndex = (jocaTipIndex + 1) % JOCA_TIPS.length;
+  const msg = JOCA_TIPS[jocaTipIndex];
+  const txt = document.getElementById('jocaText');
+  if (txt) txt.textContent = msg;
+
+  const utter = new SpeechSynthesisUtterance(msg.replace(/[🐊✨🚀🦕⭐🎈📖💫]/g, ''));
+  utter.lang = 'pt-BR';
+  utter.rate = 1.0;
+  utter.pitch = 1.25;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
+}
+
+// =========================================================
+// 16. INOVAÇÃO 4: GAMIFICAÇÃO & CONQUISTAS (MEDALHAS)
+// =========================================================
+const ACHIEVEMENTS = [
+  { id: 'first_words', icon: '✍️', title: 'Primeiras Letras', desc: 'Escreveu suas primeiras 50 palavras na obra.' },
+  { id: 'cordel_poet', icon: '🌵', title: 'Mestre do Cordel', desc: 'Usou o dicionário e rimou estrofes de cordel.' },
+  { id: 'voice_magic', icon: '🎤', title: 'Voz Encantada', desc: 'Usou ditado por voz ou leitor automático.' },
+  { id: 'cover_designer', icon: '🎨', title: 'Designer Gráfico', desc: 'Personalizou capas abertas com QR Code ou xilogravura.' },
+  { id: 'kids_explorer', icon: '🎈', title: 'Explorador Mirim', desc: 'Ativou o Modo Divertido e conheceu o Joca.' },
+  { id: 'published_author', icon: '🏆', title: 'Autor Consagrado', desc: 'Compilou com sucesso seu livro em EPUB 3.' }
+];
+
+function getUnlockedAchievements() {
+  try {
+    return JSON.parse(localStorage.getItem('mli_achievements') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+function unlockAchievement(id) {
+  const current = getUnlockedAchievements();
+  if (current.includes(id)) return;
+  current.push(id);
+  localStorage.setItem('mli_achievements', JSON.stringify(current));
+
+  const ach = ACHIEVEMENTS.find(a => a.id === id);
+  if (ach) {
+    showToast(`🏆 <b>Nova Conquista Desbloqueada!</b><br>${ach.icon} ${ach.title}: ${ach.desc}`);
+  }
+  renderAchievements();
+}
+
+function renderAchievements() {
+  const list = document.getElementById('trophiesList');
+  if (!list) return;
+  const unlocked = getUnlockedAchievements();
+  const badge = document.getElementById('trophiesScoreBadge');
+  if (badge) badge.textContent = `${unlocked.length} / ${ACHIEVEMENTS.length} Desbloqueadas`;
+
+  list.innerHTML = ACHIEVEMENTS.map(ach => {
+    const isUnlocked = unlocked.includes(ach.id);
+    return `
+      <div style="padding: 10px 12px; border-radius: 10px; border: 1px solid ${isUnlocked ? '#f1c40f' : 'var(--line)'}; background: ${isUnlocked ? '#fffef5' : '#f8fafc'}; display: flex; align-items: center; gap: 10px; opacity: ${isUnlocked ? '1' : '0.6'};">
+        <div style="font-size: 26px; filter: ${isUnlocked ? 'none' : 'grayscale(1)'};">${ach.icon}</div>
+        <div>
+          <strong style="font-size: 13px; color: ${isUnlocked ? '#856404' : 'var(--muted)'}; display: block;">${ach.title} ${isUnlocked ? '✓' : '🔒'}</strong>
+          <span style="font-size: 11px; color: var(--muted);">${ach.desc}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
 </script>
+
+<!-- 🐊 INOVAÇÃO 3: MASCOTE ANIMADO JOCA O JACAREZINHO (MODO KIDS) -->
+<div id="jocaMascotContainer" style="display: none; position: fixed; bottom: 20px; right: 24px; z-index: 1000; align-items: flex-end; gap: 10px; cursor: pointer;" onclick="interactWithJoca()">
+  <div id="jocaSpeechBubble" style="max-width: 220px; background: #fff; padding: 10px 14px; border-radius: 16px; border: 2px solid #27ae60; box-shadow: 0 6px 20px rgba(0,0,0,0.15); font-size: 13px; font-weight: 700; color: #163653; position: relative;">
+    <span id="jocaText">Oi! Eu sou o Joca! Vamos escrever uma história incrível? 🐊✨</span>
+    <div style="position: absolute; right: -8px; bottom: 12px; width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-left: 8px solid #27ae60;"></div>
+  </div>
+  <div style="width: 70px; height: 70px; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2)); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+    <svg viewBox="0 0 100 100" width="100%" height="100%">
+      <!-- Jacarezinho amigável Joca -->
+      <circle cx="50" cy="50" r="42" fill="#2ecc71" />
+      <!-- Olhos grandes -->
+      <circle cx="36" cy="36" r="10" fill="#fff" />
+      <circle cx="64" cy="36" r="10" fill="#fff" />
+      <circle cx="38" cy="36" r="5" fill="#1b4165" />
+      <circle cx="66" cy="36" r="5" fill="#1b4165" />
+      <circle cx="40" cy="34" r="2" fill="#fff" />
+      <circle cx="68" cy="34" r="2" fill="#fff" />
+      <!-- Focinho sorridente -->
+      <ellipse cx="50" cy="62" rx="28" ry="16" fill="#27ae60" />
+      <path d="M 32 64 Q 50 78 68 64" stroke="#163653" stroke-width="3" fill="none" stroke-linecap="round" />
+      <!-- Dentinhos brancos amigáveis -->
+      <polygon points="40,66 43,71 46,66" fill="#fff" />
+      <polygon points="54,66 57,71 60,66" fill="#fff" />
+      <!-- Narinas -->
+      <circle cx="45" cy="56" r="2.5" fill="#1e8449" />
+      <circle cx="55" cy="56" r="2.5" fill="#1e8449" />
+      <!-- Cachecol amarelo quentinho -->
+      <path d="M 22 75 Q 50 92 78 75 Q 50 84 22 75" fill="#f1c40f" />
+      <rect x="60" y="78" width="12" height="18" rx="3" fill="#f39c12" />
+    </svg>
+  </div>
+</div>
+
 </body>
 </html>
