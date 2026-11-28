@@ -112,6 +112,15 @@ canvas#woodcutCanvas { max-width: 100%; height: auto; border: 1px solid #000; bo
   50% { transform: scale(1.08); opacity: 0.6; }
   100% { transform: scale(1); opacity: 1; }
 }
+@keyframes robot-float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-7px) rotate(1.5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+@keyframes antenna-glow {
+  0%, 100% { filter: drop-shadow(0 0 2px #f1c40f); }
+  50% { filter: drop-shadow(0 0 10px #f39c12); }
+}
 .mic-recording {
   animation: pulse-rec 1.2s infinite !important;
   background: #e74c3c !important;
@@ -161,7 +170,7 @@ body.kids-mode .story-actions-bar {
   padding: 14px 18px !important;
 }
 
-// Responsive — sidebar mobile hamburguer
+/* Responsive — sidebar mobile hamburguer */
 @media (max-width: 1050px) {
   .app { grid-template-columns: 1fr; }
   .sidebar { display: none; position: fixed; top: 0; left: 0; height: 100vh; width: 260px; z-index: 100; }
@@ -276,6 +285,69 @@ body.kids-mode .story-actions-bar {
             <p>Gerencie seus livros, folhetos de cordel, revistas e publicações com persistência segura.</p>
           </div>
           <button onclick="navigate('new-project')">➕ Criar Nova Obra</button>
+        </div>
+
+        <!-- 🤖 ROBOZINHO INFANTIL DE BOAS-VINDAS: TICO, O AMIGO ESCRITOR -->
+        <div id="welcomeRobotHero" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; background: linear-gradient(135deg, #163653, #1e4970); color: #fff; padding: 20px 24px; border-radius: 18px; margin-bottom: 22px; box-shadow: 0 8px 25px rgba(22,54,83,0.15); border: 2px solid #2e6f9e; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 260px;">
+            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(241,196,15,0.2); border: 1px solid rgba(241,196,15,0.4); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #f1c40f; margin-bottom: 8px;">
+              ⭐ Arte, Cultura &amp; Tecnologia 100% Gratuita Para Todos
+            </div>
+            <h2 id="robotGreetingHeadline" style="font-size: 21px; font-weight: 900; margin-bottom: 6px; color: #fff;">
+              Olá, futuro escritor! Eu sou o Robô Tico! 🤖✨
+            </h2>
+            <p id="robotGreetingText" style="font-size: 13.5px; line-height: 1.6; color: #dbe7ef; margin-bottom: 14px;">
+              Aqui você pode criar histórias, rimar no cordel, ditar com sua voz e publicar livros e folhetos de verdade. É 100% grátis e funciona até no celular sem internet!
+            </p>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+              <button onclick="navigate('new-project')" style="background: #f1c40f; color: #163653; font-weight: 800; border-radius: 20px; padding: 8px 16px; font-size: 13px; box-shadow: 0 4px 12px rgba(241,196,15,0.3);">🚀 Criar Meu Livro Agora</button>
+              <button onclick="talkWithRobot()" class="secondary" style="background: rgba(255,255,255,0.18); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 8px 16px; font-size: 13px;">💬 Ouvir o Robô Tico</button>
+              <button onclick="toggleKidsMode()" class="gold" style="border-radius: 20px; padding: 8px 16px; font-size: 13px;">🎈 Ativar Modo Divertido</button>
+            </div>
+          </div>
+
+          <!-- Ilustração Vetorial SVG do Robozinho Infantil Animado -->
+          <div id="robotInteractiveAvatar" onclick="talkWithRobot()" title="Clique no Robô Tico para conversar com ele!" style="cursor: pointer; position: relative; width: 130px; height: 130px; display: grid; place-items: center; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3)); animation: robot-float 3s ease-in-out infinite; user-select: none;">
+            <svg viewBox="0 0 160 160" width="100%" height="100%">
+              <!-- Antena -->
+              <line x1="80" y1="42" x2="80" y2="20" stroke="#90caf9" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="80" cy="18" r="8" fill="#f1c40f" style="animation: antenna-glow 2s infinite;" />
+              <circle cx="82" cy="16" r="2.5" fill="#fff" />
+              <!-- Fone / Orelhinhas -->
+              <rect x="24" y="58" width="9" height="26" rx="4.5" fill="#00cec9" />
+              <rect x="127" y="58" width="9" height="26" rx="4.5" fill="#00cec9" />
+              <path d="M 28 65 A 52 52 0 0 1 132 65" fill="none" stroke="#74b9ff" stroke-width="4" />
+              <!-- Cabeça -->
+              <rect x="32" y="42" width="96" height="66" rx="22" fill="#eef2f7" stroke="#b2bec3" stroke-width="3" />
+              <!-- Visor / Tela do Rosto -->
+              <rect x="42" y="52" width="76" height="46" rx="14" fill="#16222f" />
+              <!-- Olhos Grandes Brilhantes -->
+              <circle cx="62" cy="72" r="10" fill="#00d2d3" />
+              <circle cx="98" cy="72" r="10" fill="#00d2d3" />
+              <circle cx="65" cy="69" r="3.5" fill="#ffffff" />
+              <circle cx="101" cy="69" r="3.5" fill="#ffffff" />
+              <!-- Bochechas Rosadas -->
+              <circle cx="50" cy="85" r="5" fill="#ff7675" opacity="0.8" />
+              <circle cx="110" cy="85" r="5" fill="#ff7675" opacity="0.8" />
+              <!-- Boquinha Sorridente -->
+              <path d="M 72 83 Q 80 91 88 83" stroke="#00d2d3" stroke-width="3" fill="none" stroke-linecap="round" />
+              <!-- Corpo Robótico -->
+              <rect x="48" y="112" width="64" height="40" rx="14" fill="#74b9ff" stroke="#0984e3" stroke-width="3" />
+              <!-- Botões do Peito -->
+              <circle cx="66" cy="126" r="4.5" fill="#f1c40f" />
+              <circle cx="80" cy="126" r="4.5" fill="#2ecc71" />
+              <circle cx="94" cy="126" r="4.5" fill="#e74c3c" />
+              <rect x="62" y="137" width="36" height="6" rx="3" fill="#0984e3" />
+              <!-- Braço Acenando -->
+              <path d="M 112 120 Q 138 105 136 85" fill="none" stroke="#eef2f7" stroke-width="7" stroke-linecap="round" />
+              <circle cx="136" cy="85" r="7" fill="#f1c40f" />
+              <!-- Braço com Lápis Mágico -->
+              <path d="M 48 120 Q 26 125 28 140" fill="none" stroke="#eef2f7" stroke-width="7" stroke-linecap="round" />
+              <circle cx="28" cy="140" r="6" fill="#f1c40f" />
+              <line x1="22" y1="148" x2="36" y2="128" stroke="#e67e22" stroke-width="4" stroke-linecap="round" />
+              <polygon points="21,150 24,146 20,147" fill="#2d3436" />
+            </svg>
+          </div>
         </div>
 
         <div class="grid stats-grid">
@@ -1710,6 +1782,43 @@ function applyWelcomeGreeting() {
 
   document.addEventListener('click', speakWelcome, { once: true });
   document.addEventListener('keydown', speakWelcome, { once: true });
+}
+
+// 🤖 ROBOZINHO INFANTIL TICO (INTERATIVIDADE E DICAS FALADAS)
+const ROBOT_TICO_MESSAGES = [
+  "Bip bop! Olá amigo! Eu sou o Robô Tico! Sabia que qualquer ideia da sua cabeça pode virar um livro de verdade?",
+  "Dica do Robô Tico: você pode clicar no botão 🎤 Falar com a Voz no editor, e eu escrevo tudo o que você falar!",
+  "A arte e a cultura são livres para todas as crianças! Vamos inventar personagens incríveis e desenhar a capa?",
+  "Sabia que você pode criar um folheto de cordel com rimas perfeitas e xilogravura de graça?",
+  "Você é um autor genial! Dê um clique em '➕ Criar Minha Obra' e comece seu primeiro capítulo!"
+];
+let robotMessageIndex = 0;
+
+function talkWithRobot() {
+  robotMessageIndex = (robotMessageIndex + 1) % ROBOT_TICO_MESSAGES.length;
+  const msg = ROBOT_TICO_MESSAGES[robotMessageIndex];
+
+  const headline = document.getElementById('robotGreetingHeadline');
+  const txt = document.getElementById('robotGreetingText');
+  const avatar = document.getElementById('robotInteractiveAvatar');
+
+  if (txt) txt.textContent = msg;
+  if (headline) headline.textContent = "Ouvindo o Robozinho Tico! 🤖💬";
+
+  if (avatar) {
+    avatar.style.transform = 'scale(1.15) rotate(-5deg)';
+    setTimeout(() => { avatar.style.transform = ''; }, 400);
+  }
+
+  showToast(`🤖 <b>Robô Tico diz:</b> "${msg}"`);
+
+  const cleanText = msg.replace(/[🤖✨🎤➕]/g, '');
+  const utter = new SpeechSynthesisUtterance(cleanText);
+  utter.lang = 'pt-BR';
+  utter.rate = 1.05;
+  utter.pitch = 1.3;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
 }
 
 // INICIALIZAÇÃO
