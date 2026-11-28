@@ -1725,7 +1725,10 @@ function populateVoices() {
   });
 }
 if (speechSynthesis.onvoiceschanged !== undefined) {
-  speechSynthesis.onvoiceschanged = populateVoices;
+  speechSynthesis.onvoiceschanged = () => {
+    populateVoices();
+    if (typeof speakRobotAutomaticWelcome === 'function') setTimeout(speakRobotAutomaticWelcome, 100);
+  };
 }
 populateVoices();
 
@@ -1941,41 +1944,9 @@ function getGreetingByTime() {
   return 'BOA NOITE';
 }
 
-function applyWelcomeGreeting() {
-  const greeting = getGreetingByTime();
-  const el = document.getElementById('welcomeTimeGreeting');
-  if (el) {
-    el.innerHTML = `👋 <strong>${greeting}!</strong> BEM-VINDO AO MEU LIVRO EM INSTANTE`;
-  }
+// 🤖 ROBOZINHO INFANTIL TICO (FALA AUTOMÁTICA IMEDIATA NA ABERTURA)
+let robotSpokeWelcome = false;
 
-  // Notificação visual Toast no topo da tela
-  setTimeout(() => {
-    showToast(`✨ <b>${greeting}!</b> Bem-vindo ao <b>MEU LIVRO EM INSTANTE</b>!`);
-  }, 500);
-
-  // Saudação falada por voz em PT-BR (tenta direto ou aguarda 1º toque/clique)
-  let spoke = false;
-  const speakWelcome = () => {
-    if (spoke) return;
-    spoke = true;
-    const utter = new SpeechSynthesisUtterance(`${greeting}! Bem-vindo ao Meu Livro em Instante!`);
-    utter.lang = 'pt-BR';
-    utter.rate = 0.95;
-    utter.pitch = 1.05;
-    speechSynthesis.speak(utter);
-    document.removeEventListener('click', speakWelcome);
-    document.removeEventListener('keydown', speakWelcome);
-  };
-
-  try {
-    speakWelcome();
-  } catch (e) {}
-
-  document.addEventListener('click', speakWelcome, { once: true });
-  document.addEventListener('keydown', speakWelcome, { once: true });
-}
-
-// 🤖 ROBOZINHO INFANTIL TICO (INTERATIVIDADE E DICAS FALADAS)
 const ROBOT_TICO_MESSAGES = [
   "Bip bop! Olá amigo! Eu sou o Robô Tico! Sabia que qualquer ideia da sua cabeça pode virar um livro de verdade?",
   "Dica do Robô Tico: você pode clicar no botão 🎤 Falar com a Voz no editor, e eu escrevo tudo o que você falar!",
@@ -1984,6 +1955,85 @@ const ROBOT_TICO_MESSAGES = [
   "Você é um autor genial! Dê um clique em '➕ Criar Minha Obra' e comece seu primeiro capítulo!"
 ];
 let robotMessageIndex = 0;
+
+function speakRobotAutomaticWelcome() {
+  if (robotSpokeWelcome) return;
+  robotSpokeWelcome = true;
+
+  const greeting = getGreetingByTime();
+  const welcomeMsg = `Bip bop! ${greeting}! Eu sou o Robozinho Tico! Bem-vindo ao Meu Livro em Instante! Vamos criar uma história mágica juntos hoje?`;
+
+  const headline = document.getElementById('robotGreetingHeadline');
+  const txt = document.getElementById('robotGreetingText');
+  const avatar = document.getElementById('robotInteractiveAvatar');
+
+  if (headline) headline.innerHTML = `O Robozinho Tico está falando com você! 🤖✨`;
+  if (txt) txt.innerHTML = `<em>"${welcomeMsg}"</em>`;
+
+  if (avatar) {
+    avatar.style.transform = 'scale(1.22) rotate(-5deg)';
+    setTimeout(() => { avatar.style.transform = ''; }, 600);
+  }
+
+  showToast(`🤖 <b>Robô Tico:</b> "${welcomeMsg}"`);
+
+  try {
+    speechSynthesis.resume();
+  } catch (e) {}
+
+  const cleanText = welcomeMsg.replace(/[🤖✨🎤➕!]/g, '');
+  const utter = new SpeechSynthesisUtterance(cleanText);
+  utter.lang = 'pt-BR';
+  utter.rate = 1.0;
+  utter.pitch = 1.3;
+
+  const voices = speechSynthesis.getVoices();
+  const ptVoice = voices.find(v => v.lang.toLowerCase().includes('pt') || v.lang.toLowerCase().includes('br'));
+  if (ptVoice) utter.voice = ptVoice;
+
+  utter.onstart = () => {
+    if (avatar) avatar.style.filter = 'drop-shadow(0 0 14px #f1c40f)';
+  };
+  utter.onend = () => {
+    if (avatar) avatar.style.filter = 'drop-shadow(0 8px 16px rgba(0,0,0,0.3))';
+  };
+
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
+}
+
+function applyWelcomeGreeting() {
+  const greeting = getGreetingByTime();
+  const el = document.getElementById('welcomeTimeGreeting');
+  if (el) {
+    el.innerHTML = `👋 <strong>${greeting}!</strong> BEM-VINDO AO MEU LIVRO EM INSTANTE`;
+  }
+
+  // DISPARO IMEDIATO AUTOMÁTICO DA VOZ DO ROBÔ TICO ASSIM QUE ABRIR A PÁGINA
+  try {
+    speechSynthesis.resume();
+  } catch (e) {}
+  
+  speakRobotAutomaticWelcome();
+  setTimeout(speakRobotAutomaticWelcome, 200);
+  setTimeout(speakRobotAutomaticWelcome, 700);
+
+  // Fallback instantâneo em qualquer micro-interação caso o navegador suspenda áudio sem ação prévia
+  const instantTrigger = () => {
+    speakRobotAutomaticWelcome();
+    document.removeEventListener('pointermove', instantTrigger);
+    document.removeEventListener('pointerdown', instantTrigger);
+    document.removeEventListener('touchstart', instantTrigger);
+    document.removeEventListener('keydown', instantTrigger);
+    document.removeEventListener('scroll', instantTrigger);
+  };
+
+  document.addEventListener('pointermove', instantTrigger, { once: true, passive: true });
+  document.addEventListener('pointerdown', instantTrigger, { once: true, passive: true });
+  document.addEventListener('touchstart', instantTrigger, { once: true, passive: true });
+  document.addEventListener('keydown', instantTrigger, { once: true, passive: true });
+  document.addEventListener('scroll', instantTrigger, { once: true, passive: true });
+}
 
 function talkWithRobot() {
   robotMessageIndex = (robotMessageIndex + 1) % ROBOT_TICO_MESSAGES.length;
