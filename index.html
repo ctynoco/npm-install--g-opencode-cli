@@ -242,6 +242,13 @@ body.kids-mode .story-actions-bar {
       <button onclick="navigate('revisor-ptbr')"><span class="icon">✅</span> Revisor Gramatical</button>
     </nav>
 
+    <div class="nav-label">Inclusão Social &amp; Escolas</div>
+    <nav class="nav">
+      <button onclick="navigate('guia-educador')"><span class="icon">🏫</span> Cartilha do Educador</button>
+      <button onclick="printFolhetoEscolar()"><span class="icon">📄</span> Folheto Dobrável A5</button>
+      <button onclick="shareOnWhatsApp()"><span class="icon">📲</span> Enviar no WhatsApp</button>
+    </nav>
+
     <div class="side-bottom">
       <span class="badge-version">IndexedDB Ativo</span>
       <span>Armazenamento local seguro</span>
@@ -267,6 +274,7 @@ body.kids-mode .story-actions-bar {
         </div>
         <button class="gold" id="btnToggleKidsMode" style="border-radius: 20px; padding: 7px 15px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;" onclick="toggleKidsMode()">🎈 Modo Divertido (Kids)</button>
         <div class="save-badge" id="saveBadge">✓ Salvo no IndexedDB</div>
+        <button style="border-radius: 20px; padding: 7px 13px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; background: #25d366; color: #fff;" onclick="shareOnWhatsApp()" title="Enviar sua história no WhatsApp da família ou amigos">📲 WhatsApp</button>
         <button class="secondary" onclick="exportCurrentProjectEpub()">📥 Baixar EPUB 3</button>
         <button class="gold" onclick="window.print()">🖨️ Imprimir PDF</button>
       </div>
@@ -768,6 +776,26 @@ Onde o livro é professor.</textarea>
             </p>
             <button class="secondary" onclick="window.print()">🖨️ Gerar PDF para Impressão</button>
           </div>
+
+          <!-- 📄 INOVAÇÃO SOCIAL: FOLHETO DOBRÁVEL ESCOLAR A5 -->
+          <div class="card" style="border: 2px solid #27ae60; background: #fdfefd;">
+            <div style="font-size: 32px; margin-bottom: 10px;">📄</div>
+            <h3 style="color: #27ae60; margin-bottom: 8px;">Folheto Dobrável Escolar (Impressão Econômica)</h3>
+            <p style="color: var(--muted); font-size: 13px; line-height: 1.5; margin-bottom: 16px;">
+              Formatação perfeita para impressoras comuns de escolas públicas e ONGs. Imprime em folha A4 com 2 páginas, dobra ao meio e grampeia sem nenhum custo!
+            </p>
+            <button class="success" onclick="printFolhetoEscolar()">📄 Gerar e Imprimir Folheto A5</button>
+          </div>
+
+          <!-- 📲 INOVAÇÃO SOCIAL: COMPARTILHAR HISTÓRIA NO WHATSAPP -->
+          <div class="card" style="border: 2px solid #25d366; background: #fbfefc;">
+            <div style="font-size: 32px; margin-bottom: 10px;">📲</div>
+            <h3 style="color: #128c7e; margin-bottom: 8px;">Compartilhar História no WhatsApp</h3>
+            <p style="color: var(--muted); font-size: 13px; line-height: 1.5; margin-bottom: 16px;">
+              Envia o texto da obra ou poesia de cordel diretamente para o WhatsApp dos pais, avós, professores e amigos com 1 clique no celular.
+            </p>
+            <button style="background: #25d366; color: #fff; font-weight: 700; border-radius: 8px; padding: 10px 18px;" onclick="shareOnWhatsApp()">📲 Enviar Minha História no WhatsApp</button>
+          </div>
         </div>
       </section>
 
@@ -812,6 +840,56 @@ Onde o livro é professor.</textarea>
         <div class="card">
           <div id="grammarResultsList">
             <p style="color: var(--muted); font-style: italic;">Clique em "Analisar Capítulo Atual" para enviar o texto ao revisor.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 🏫 TELA 11: CARTILHA DO EDUCADOR SOCIAL & OFICINAS ESCOLARES -->
+      <section class="view" id="view-guia-educador">
+        <div class="page-head">
+          <div>
+            <h1>Cartilha do Educador Social &amp; Professor</h1>
+            <p>Guia pedagógico 100% gratuito para realizar oficinas de criação de livros e cordel em escolas públicas, ONGs e projetos comunitários.</p>
+          </div>
+          <button class="gold" onclick="window.print()">🖨️ Imprimir Cartilha em Papel</button>
+        </div>
+
+        <div class="grid" style="grid-template-columns: 1fr;">
+          <div class="card" style="background: #fdfaf3; border: 2px solid #f1c40f;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;">
+              <span style="font-size: 34px;">🏫</span>
+              <div>
+                <strong style="color: #856404; font-size: 19px; display: block;">Roteiro de Oficina: "Meu Primeiro Livro em 1 Dia"</strong>
+                <span style="font-size: 12.5px; color: var(--muted);">Duração: 2 horas | Custo: R$ 0,00 | Indicado para crianças e adolescentes (6 a 16 anos)</span>
+              </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 14px;">
+              <div style="background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #fae5b9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                <strong style="color: var(--navy); display: flex; align-items: center; gap: 6px; font-size: 14px; margin-bottom: 8px;">1. A Roda de Histórias (20 min)</strong>
+                <p style="font-size: 13px; color: var(--ink); line-height: 1.5;">Comece com a pergunta: <em>"Se você pudesse inventar um personagem hoje, quem ele seria?"</em>. Crianças que ainda não escrevem com facilidade usam o botão <strong>🎤 Falar com a Voz</strong> direto no celular!</p>
+              </div>
+
+              <div style="background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #fae5b9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                <strong style="color: var(--navy); display: flex; align-items: center; gap: 6px; font-size: 14px; margin-bottom: 8px;">2. Escrevendo ou Rimando (35 min)</strong>
+                <p style="font-size: 13px; color: var(--ink); line-height: 1.5;">Para histórias infantis: ative o <strong>🎈 Modo Divertido</strong> com os 7 temas mágicos. Para poesia popular: use o <strong>Estúdio de Cordel</strong> com o <strong>Dicionário de Rimas</strong>, ensinando as 7 sílabas poéticas.</p>
+              </div>
+
+              <div style="background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #fae5b9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                <strong style="color: var(--navy); display: flex; align-items: center; gap: 6px; font-size: 14px; margin-bottom: 8px;">3. A Capa e a Xilogravura (25 min)</strong>
+                <p style="font-size: 13px; color: var(--ink); line-height: 1.5;">No <strong>Estúdio de Capas &amp; Lombada</strong>, os alunos geram a capa com QR Code. Podem fotografar um desenho no papel e transformá-lo em xilogravura de madeira no <strong>Estúdio de Cordel</strong>!</p>
+              </div>
+
+              <div style="background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #fae5b9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                <strong style="color: var(--navy); display: flex; align-items: center; gap: 6px; font-size: 14px; margin-bottom: 8px;">4. O Livro na Mão do Aluno (20 min)</strong>
+                <p style="font-size: 13px; color: var(--ink); line-height: 1.5;">Clique em <strong>📄 Folheto Dobrável Escolar</strong> para imprimir na impressora comum da escola, dobrar a folha A4 e grampear. Cada jovem sai da aula com seu livro físico impresso!</p>
+              </div>
+            </div>
+
+            <div style="margin-top: 18px; padding: 14px 18px; background: #eafaf1; border-radius: 10px; border: 1px solid #d4efdf; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+              <span style="font-size: 13px; color: #1e8449; font-weight: 700;">💡 100% Offline: Não precisa de internet na sala de aula. Abre uma vez no navegador e funciona o dia todo!</span>
+              <button class="gold" onclick="printFolhetoEscolar()">📄 Gerar Folheto Dobrável Agora</button>
+            </div>
           </div>
         </div>
       </section>
@@ -887,7 +965,8 @@ const VIEW_LABELS = {
   'estudio-capas': '🎨 Capas & Lombada',
   'estudio-publicacao': '🚀 Publicação & EPUB 3',
   'auto-reader': '🔊 Leitor Automático',
-  'revisor-ptbr': '✅ Revisor Gramatical'
+  'revisor-ptbr': '✅ Revisor Gramatical',
+  'guia-educador': '🏫 Cartilha do Educador'
 };
 
 function navigate(viewId) {
@@ -1514,6 +1593,118 @@ ${navItems}
   setTimeout(() => URL.revokeObjectURL(link.href), 60000);
   showToast(`📥 EPUB 3 real gerado: "${title}" com ${chapters.length} capítulo(s)!`);
   if (typeof unlockAchievement === 'function') unlockAchievement('published_author');
+}
+
+// 📲 INOVAÇÃO SOCIAL: COMPARTILHAR HISTÓRIA NO WHATSAPP
+function shareOnWhatsApp() {
+  const title = currentProject ? currentProject.title : 'Minha História Mágica';
+  const author = currentProject ? currentProject.author : 'Pequeno Escritor';
+  const paper = document.getElementById('editorPaper');
+  let textSample = paper ? (paper.innerText || '').trim() : '';
+  if (textSample.length > 350) {
+    textSample = textSample.substring(0, 350) + '... (continua no livro)';
+  }
+  if (!textSample) {
+    textSample = 'Estou escrevendo um livro incrível de forma 100% gratuita!';
+  }
+
+  const msg = `📖 *${title}*\n✍️ Autor(a): *${author}*\n\n"${textSample}"\n\n✨ _Criado de graça no MEU LIVRO EM INSTANTE!_\n📲 Leia e crie o seu: https://ctynoco.github.io/npm-install--g-opencode-cli/`;
+
+  const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+  showToast('📲 Abrindo WhatsApp para compartilhar sua história com a família!');
+}
+
+// 📄 INOVAÇÃO SOCIAL: FOLHETO DOBRÁVEL ESCOLAR (IMPRESSÃO A4 DOBRADA EM A5)
+function printFolhetoEscolar() {
+  const title = currentProject ? currentProject.title : 'Meu Livreto Comunitário';
+  const author = currentProject ? currentProject.author : 'Autor Mirim';
+  const paper = document.getElementById('editorPaper');
+  const content = paper ? (paper.innerHTML || '<p>História do autor...</p>') : '<p>História do autor...</p>';
+
+  const printWin = window.open('', '_blank', 'width=850,height=900');
+  if (!printWin) {
+    showToast('⚠️ Permita pop-ups no navegador para abrir a impressão do folheto!');
+    return;
+  }
+
+  printWin.document.write(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>${title} — Folheto Dobrável Escolar</title>
+  <style>
+    @page { size: A4 landscape; margin: 8mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Georgia, serif; background: #fff; color: #111; }
+    .no-print-bar { background: #163653; color: #fff; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .sheet { width: 100%; min-height: 94vh; display: grid; grid-template-columns: 1fr 1fr; gap: 14mm; page-break-after: always; padding: 8mm; }
+    .page-col { border: 1px dashed #ccc; padding: 14mm 12mm; display: flex; flex-direction: column; justify-content: space-between; border-radius: 6px; }
+    h1 { font-size: 24px; color: #163653; text-align: center; margin-bottom: 8px; line-height: 1.2; }
+    h2 { font-size: 14px; color: #555; text-align: center; font-weight: normal; margin-bottom: 16px; }
+    .text-body { font-size: 13.5px; line-height: 1.6; text-align: justify; }
+    .text-body p { margin-bottom: 10px; }
+    .footer-note { text-align: center; font-size: 10px; color: #888; border-top: 1px solid #eee; padding-top: 6px; }
+    @media print {
+      .no-print-bar { display: none !important; }
+      .page-col { border: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print-bar">
+    <div>
+      <strong>📄 Folheto Dobrável Escolar / Comunitário</strong>
+      <div style="font-size: 11px; opacity: 0.85;">Imprima em folha A4 comum, dobre ao meio e grampeie para formar seu livrinho!</div>
+    </div>
+    <button onclick="window.print()" style="background: #27ae60; color: #fff; border: 0; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px;">🖨️ Imprimir na Impressora da Escola</button>
+  </div>
+
+  <!-- FOLHA EXTERNA: CONTRACAPA (ESQ) E PRIMEIRA CAPA (DIR) -->
+  <div class="sheet">
+    <div class="page-col">
+      <div style="text-align: center; padding-top: 20px;">
+        <span style="font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px;">QUARTA CAPA</span>
+        <div style="margin-top: 30px;">
+          <p style="font-size: 15px; font-weight: 800; color: #163653;">${author}</p>
+          <p style="font-size: 12px; color: #666; margin-top: 6px;">Obra escrita e diagramada na plataforma livre <strong>Meu Livro em Instante</strong>.</p>
+          <div style="font-size: 32px; margin-top: 25px;">📚✨</div>
+        </div>
+      </div>
+      <div class="footer-note">Projeto Social &amp; Escolar de Leitura e Cultura • 100% Gratuito</div>
+    </div>
+
+    <div class="page-col">
+      <div style="border: 2px solid #163653; padding: 25px 15px; border-radius: 8px; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+        <span style="font-size: 11px; text-transform: uppercase; color: #856404; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px;">Edição Especial Escolar</span>
+        <h1>${title}</h1>
+        <h2>Por ${author}</h2>
+        <div style="font-size: 42px; margin: 15px 0;">📖🎨</div>
+        <p style="font-size: 11px; color: #777; font-style: italic;">"A imaginação é o maior superpoder de uma criança."</p>
+      </div>
+      <div class="footer-note">Dobre na linha central para formar seu livro de bolso</div>
+    </div>
+  </div>
+
+  <!-- FOLHA INTERNA: PÁGINAS DE CONTEÚDO -->
+  <div class="sheet">
+    <div class="page-col">
+      <div class="text-body">${content}</div>
+      <div class="footer-note">Página 1</div>
+    </div>
+    <div class="page-col">
+      <div class="text-body" style="display: flex; flex-direction: column; justify-content: center; height: 100%; text-align: center; color: #555;">
+        <div style="font-size: 36px; margin-bottom: 14px;">🌟</div>
+        <p style="font-style: italic; font-size: 14px; line-height: 1.6;">"Escrever é dar asas ao pensamento e permitir que sua voz viaje pelo mundo."</p>
+        <p style="font-weight: bold; margin-top: 10px; color: #163653;">Parabéns ao novo autor!</p>
+      </div>
+      <div class="footer-note">Página 2</div>
+    </div>
+  </div>
+</body>
+</html>`);
+  printWin.document.close();
+  showToast('📄 Folheto dobrável gerado com sucesso! Pronto para imprimir e dobrar.');
 }
 
 // 8. LEITURA AUTOMÁTICA EM VOZ ALTA (WEB SPEECH API)
