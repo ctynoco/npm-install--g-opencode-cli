@@ -269,6 +269,9 @@ body.kids-mode .story-actions-bar {
       <section class="view active" id="view-dashboard">
         <div class="page-head">
           <div>
+            <div id="welcomeTimeGreeting" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 800; color: #856404; background: #fdf6e7; border: 1px solid #fae5b9; padding: 4px 12px; border-radius: 20px; margin-bottom: 8px;">
+              👋 <strong>BOM DIA!</strong> BEM-VINDO AO MEU LIVRO EM INSTANTE
+            </div>
             <h1>Painel Editorial Central</h1>
             <p>Gerencie seus livros, folhetos de cordel, revistas e publicações com persistência segura.</p>
           </div>
@@ -1667,6 +1670,48 @@ async function runGrammarCheck() {
   }
 }
 
+// SAUDAÇÃO DINÂMICA DE ABERTURA
+function getGreetingByTime() {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return 'BOM DIA';
+  if (hour >= 12 && hour < 18) return 'BOA TARDE';
+  return 'BOA NOITE';
+}
+
+function applyWelcomeGreeting() {
+  const greeting = getGreetingByTime();
+  const el = document.getElementById('welcomeTimeGreeting');
+  if (el) {
+    el.innerHTML = `👋 <strong>${greeting}!</strong> BEM-VINDO AO MEU LIVRO EM INSTANTE`;
+  }
+
+  // Notificação visual Toast no topo da tela
+  setTimeout(() => {
+    showToast(`✨ <b>${greeting}!</b> Bem-vindo ao <b>MEU LIVRO EM INSTANTE</b>!`);
+  }, 500);
+
+  // Saudação falada por voz em PT-BR (tenta direto ou aguarda 1º toque/clique)
+  let spoke = false;
+  const speakWelcome = () => {
+    if (spoke) return;
+    spoke = true;
+    const utter = new SpeechSynthesisUtterance(`${greeting}! Bem-vindo ao Meu Livro em Instante!`);
+    utter.lang = 'pt-BR';
+    utter.rate = 0.95;
+    utter.pitch = 1.05;
+    speechSynthesis.speak(utter);
+    document.removeEventListener('click', speakWelcome);
+    document.removeEventListener('keydown', speakWelcome);
+  };
+
+  try {
+    speakWelcome();
+  } catch (e) {}
+
+  document.addEventListener('click', speakWelcome, { once: true });
+  document.addEventListener('keydown', speakWelcome, { once: true });
+}
+
 // INICIALIZAÇÃO
 window.addEventListener('DOMContentLoaded', async () => {
   await initIndexedDb();
@@ -1675,6 +1720,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   auditCordelStanza();
   updateSpineCalculator();
   renderNewspaperPreview();
+  applyWelcomeGreeting();
 });
 
 // FIX: Toggle menu mobile
