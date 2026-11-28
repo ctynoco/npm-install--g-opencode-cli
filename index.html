@@ -2,7 +2,11 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Plataforma editorial brasileira completa: romances, cordel, livros infantis, jornais, capas e publicação EPUB 3. Gratuito e offline.">
+<meta name="theme-color" content="#163653">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
 <title>MEU LIVRO EM INSTANTE — Plataforma Editorial Completa</title>
 <style>
 :root {
@@ -157,17 +161,45 @@ body.kids-mode .story-actions-bar {
   padding: 14px 18px !important;
 }
 
-/* Responsive */
+// Responsive — sidebar mobile hamburguer
 @media (max-width: 1050px) {
   .app { grid-template-columns: 1fr; }
-  .sidebar { display: none; }
+  .sidebar { display: none; position: fixed; top: 0; left: 0; height: 100vh; width: 260px; z-index: 100; }
+  .sidebar.mobile-open { display: flex !important; }
   .editor-layout { grid-template-columns: 1fr; }
+  .topbar { padding: 0 14px; }
+  .content { padding: 16px; }
+  .paper-sheet { padding: 20mm 10mm; }
+  .form-grid { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: 1fr !important; }
 }
+#mobileMenuBtn {
+  display: none;
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--navy);
+  padding: 4px 8px;
+}
+@media (max-width: 1050px) {
+  #mobileMenuBtn { display: inline-flex; }
+}
+#sidebarOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+#sidebarOverlay.active { display: block; }
 </style>
 </head>
 <body>
 
 <div class="app">
+  <!-- Overlay mobile para fechar sidebar -->
+  <div id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
   <!-- BARRA LATERAL (SIDEBAR) -->
   <aside class="sidebar">
     <div class="brand">
@@ -211,8 +243,11 @@ body.kids-mode .story-actions-bar {
   <!-- ÁREA PRINCIPAL (MAIN) -->
   <main class="main">
     <header class="topbar">
-      <div class="crumb" id="topbarCrumb">
-        <span>🏠</span> <strong>Dashboard Editorial</strong>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button id="mobileMenuBtn" onclick="toggleMobileSidebar()" aria-label="Menu">☰</button>
+        <div class="crumb" id="topbarCrumb">
+          <span>🏠</span> <strong>Dashboard Editorial</strong>
+        </div>
       </div>
       <div class="top-actions">
         <!-- Controles de Acessibilidade: Tamanho do Texto -->
@@ -740,6 +775,20 @@ function dbGetAllProjects() {
 }
 
 // NAVEGAÇÃO ENTRE AS TELAS
+const VIEW_LABELS = {
+  'dashboard': '🏠 Dashboard Editorial',
+  'projects': '📂 Meus Projetos',
+  'new-project': '➕ Nova Obra',
+  'editor-literario': '✍️ Estúdio Literário',
+  'estudio-cordel': '🌵 Cordel & Xilogravura',
+  'estudio-infantil': '🧸 Estúdio Infantil',
+  'estudio-jornal': '📰 Estúdio Jornalístico',
+  'estudio-capas': '🎨 Capas & Lombada',
+  'estudio-publicacao': '🚀 Publicação & EPUB 3',
+  'auto-reader': '🔊 Leitor Automático',
+  'revisor-ptbr': '✅ Revisor Gramatical'
+};
+
 function navigate(viewId) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
@@ -747,13 +796,22 @@ function navigate(viewId) {
   const targetView = document.getElementById(`view-${viewId}`);
   if (targetView) targetView.classList.add('active');
 
+  // Marcar botão ativo na sidebar
+  document.querySelectorAll('.nav button').forEach(b => {
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${viewId}'`)) {
+      b.classList.add('active');
+    }
+  });
+
   const crumb = document.getElementById('topbarCrumb');
-  crumb.innerHTML = `<span>📖</span> <strong>${viewId.toUpperCase().replace('-', ' ')}</strong>`;
+  crumb.innerHTML = `<span>📖</span> <strong>${VIEW_LABELS[viewId] || viewId.toUpperCase()}</strong>`;
 
   if (viewId === 'dashboard') refreshDashboard();
   if (viewId === 'estudio-cordel') auditCordelStanza();
   if (viewId === 'estudio-capas') updateSpineCalculator();
   if (viewId === 'estudio-jornal') renderNewspaperPreview();
+  // Rolar suavemente para o topo
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // CRIAÇÃO E CARREGAMENTO DE PROJETOS
@@ -830,6 +888,7 @@ function saveCurrentChapterFromPaper() {
 }
 
 function handleEditorInput() {
+  if (!currentProject) return; // FIX: guard quando não há projeto
   saveCurrentChapterFromPaper();
   updateEditorStats();
 
@@ -937,13 +996,40 @@ async function openExistingProject(id) {
 
 async function deleteProject(id) {
   if (confirm('Deseja realmente excluir este livro definitivamente do IndexedDB?')) {
+    if (!db) return;
     const tx = db.transaction('projects', 'readwrite');
     tx.objectStore('projects').delete(id);
     tx.oncomplete = () => refreshDashboard();
+    // FIX: Se o projeto excluído for o atual, limpar estado
+    if (currentProject && currentProject.id === id) {
+      currentProject = null;
+      currentChapterIndex = 0;
+    }
   }
 }
 
 // 3. AUDITOR DE CORDEL & MÉTRICA
+// Tabela de ditongos/hiatos e regras de sílaba poética em PT-BR
+function countPoetricSyllables(line) {
+  // Remove pontuação final
+  let s = line.trim().replace(/[.,!?;:'"»«—–\-]+$/, '').toLowerCase();
+  // Elisões comuns: de + a = da (não conta como 2 vogais)
+  // Contagem por grupos vocálicos como aproximação das sílabas métricas
+  s = s.replace(/qu|gu/g, 'q'); // qu/gu = 1 consoante
+  const grupos = s.match(/[aeiouáéíóúâêîôûãõàü]+/gi) || [];
+  let count = 0;
+  for (const g of grupos) {
+    // Ditongos crescentes/decrescentes = 1 sílaba; dois núcleos = 2
+    if (/^[aeiouáéíóúâêîôûãõàü]{1}$/i.test(g)) count += 1;
+    else if (/^(ai|ei|oi|ui|au|eu|ou|iu|ia|ie|io|ua|ue|uo|ão|ãe|õe)$/i.test(g)) count += 1;
+    else count += Math.ceil(g.length / 2);
+  }
+  // Regra: sílabas após a tônica final não contam (sílabas átonas pós-tônicas)
+  // Aproximação: se termina em vogal átona (a,e,o sem acento), desconta 1
+  if (/[aeo]$/i.test(s) && count > 2) count -= 0; // preservamos simplificado
+  return count;
+}
+
 function auditCordelStanza() {
   const text = document.getElementById('cordelStanzaInput').value.trim();
   const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -954,23 +1040,27 @@ function auditCordelStanza() {
     return;
   }
 
-  let html = `<strong style="color: var(--navy); display: block; margin-bottom: 6px;">Análise da Estrofe (${lines.length} versos):</strong>`;
+  let acertos = 0;
+  let html = `<strong style="color: var(--navy); display: block; margin-bottom: 6px;">Análise da Estrofe (${lines.length} verso${lines.length > 1 ? 's' : ''}):</strong>`;
 
   lines.forEach((line, idx) => {
-    // Contagem simplificada de sílabas poéticas até a tônica
-    const vowels = line.match(/[aeiouyáéíóúâêîôûãõà]+/gi);
-    const count = vowels ? vowels.length : 0;
-    const isRedondilha = (count >= 7 && count <= 8);
-
+    const count = countPoetricSyllables(line);
+    const isRedondilha = (count >= 6 && count <= 8);
+    if (isRedondilha) acertos++;
     html += `
-      <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px;">
-        <span>Verso ${idx + 1}: "${line}"</span>
-        <b style="color: ${isRedondilha ? 'var(--success)' : 'var(--danger)'};">
-          ${count} sílabas ${isRedondilha ? '✓ (Redondilha Maior)' : '✗ (Fora do ritmo)'}
+      <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px; padding: 3px 6px; border-radius: 4px; background: ${isRedondilha ? '#eafaf1' : '#fdf2f8'};">
+        <span style="max-width:70%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Verso ${idx + 1}: "${line}"</span>
+        <b style="color: ${isRedondilha ? 'var(--success)' : 'var(--danger)'}; white-space:nowrap;">
+          ${count} síl. ${isRedondilha ? '✓' : '✗ (esperado 7)'}
         </b>
       </div>
     `;
   });
+
+  const pct = Math.round((acertos / lines.length) * 100);
+  html += `<div style="margin-top:8px; font-size:11px; color: ${pct >= 80 ? 'var(--success)' : 'var(--danger)'}; font-weight:700;">
+    Redondilha maior: ${acertos}/${lines.length} versos corretos (${pct}%)
+  </div>`;
 
   container.innerHTML = html;
 }
@@ -1110,23 +1200,187 @@ function renderNewspaperPreview() {
   `;
 }
 
-// 7. EXPORTADOR EPUB 3 (GERAÇÃO REAL DO ARQUIVO BINÁRIO .EPUB)
+// 7. EXPORTADOR EPUB 3 — GERAÇÃO REAL DO ARQUIVO BINÁRIO .epub
+// Implementação real: ZIP válido com mimetype, container.xml, content.opf e xhtml por capítulo
 function exportCurrentProjectEpub() {
   if (!currentProject) {
-    alert('Abra ou crie um projeto antes de exportar.');
+    showToast('⚠️ Abra ou crie um projeto antes de exportar.');
     return;
   }
-  
-  // Utiliza a lógica do nosso compilador criando o blob
-  const zipHeader = "PK\x03\x04";
-  const dummyEpubContent = `mimetypeapplication/epub+zipMETA-INF/container.xmlOEBPS/content.opfLivro: ${currentProject.title} por ${currentProject.author}`;
-  const blob = new Blob([dummyEpubContent], { type: 'application/epub+zip' });
-  
+
+  // ----- Utilitários de ZIP mínimo -----
+  function str2bytes(s) {
+    const enc = new TextEncoder();
+    return enc.encode(s);
+  }
+
+  function u32le(n) { return [n & 0xff, (n >> 8) & 0xff, (n >> 16) & 0xff, (n >> 24) & 0xff]; }
+  function u16le(n) { return [n & 0xff, (n >> 8) & 0xff]; }
+
+  function crc32(bytes) {
+    let crc = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) {
+      crc ^= bytes[i];
+      for (let j = 0; j < 8; j++) crc = (crc & 1) ? (crc >>> 1) ^ 0xEDB88320 : crc >>> 1;
+    }
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+
+  function localFileHeader(name, data, noCompress) {
+    const nBytes = str2bytes(name);
+    const crc = crc32(data);
+    return new Uint8Array([
+      0x50, 0x4B, 0x03, 0x04,         // signature
+      0x14, 0x00,                       // version 2.0
+      0x00, 0x00,                       // flags
+      0x00, 0x00,                       // compression (stored)
+      0x00, 0x00, 0x00, 0x00,           // mod time/date
+      ...u32le(crc),
+      ...u32le(data.length),
+      ...u32le(data.length),
+      ...u16le(nBytes.length),
+      0x00, 0x00,                       // extra len
+      ...nBytes,
+      ...data
+    ]);
+  }
+
+  function centralDir(name, offset, data) {
+    const nBytes = str2bytes(name);
+    const crc = crc32(data);
+    return new Uint8Array([
+      0x50, 0x4B, 0x01, 0x02,
+      0x14, 0x00, 0x14, 0x00,
+      0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00,
+      ...u32le(crc),
+      ...u32le(data.length),
+      ...u32le(data.length),
+      ...u16le(nBytes.length),
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00,
+      ...u32le(offset),
+      ...nBytes
+    ]);
+  }
+
+  function eocd(count, cdSize, cdOffset) {
+    return new Uint8Array([
+      0x50, 0x4B, 0x05, 0x06,
+      0x00, 0x00, 0x00, 0x00,
+      ...u16le(count), ...u16le(count),
+      ...u32le(cdSize), ...u32le(cdOffset),
+      0x00, 0x00
+    ]);
+  }
+
+  // ----- Conteúdo dos arquivos EPUB -----
+  const title = currentProject.title;
+  const author = currentProject.author;
+  const uid = 'mli-' + currentProject.id;
+
+  const chapters = currentProject.chapters || [];
+
+  const mimetype = str2bytes('application/epub+zip');
+
+  const container = str2bytes(`<?xml version="1.0" encoding="UTF-8"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+  <rootfiles>
+    <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+  </rootfiles>
+</container>`);
+
+  const manifest = chapters.map((ch, i) =>
+    `    <item id="ch${i}" href="ch${i}.xhtml" media-type="application/xhtml+xml"/>`
+  ).join('\n');
+
+  const spine = chapters.map((ch, i) => `    <itemref idref="ch${i}"/>`).join('\n');
+
+  const opf = str2bytes(`<?xml version="1.0" encoding="UTF-8"?>
+<package version="3.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="uid" xml:lang="pt-BR">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="uid">${uid}</dc:identifier>
+    <dc:title>${title}</dc:title>
+    <dc:creator>${author}</dc:creator>
+    <dc:language>pt-BR</dc:language>
+    <meta property="dcterms:modified">${new Date().toISOString().replace(/\.\d+Z$/, 'Z')}</meta>
+  </metadata>
+  <manifest>
+    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+${manifest}
+  </manifest>
+  <spine>
+${spine}
+  </spine>
+</package>`);
+
+  const navItems = chapters.map((ch, i) =>
+    `      <li><a href="ch${i}.xhtml">${ch.title}</a></li>`
+  ).join('\n');
+
+  const nav = str2bytes(`<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="pt-BR" xml:lang="pt-BR">
+<head><meta charset="UTF-8"/><title>${title}</title></head>
+<body>
+  <nav epub:type="toc" id="toc"><ol>
+${navItems}
+  </ol></nav>
+</body>
+</html>`);
+
+  // Converter HTML do editor para XHTML limpo
+  function htmlToXhtml(html, chTitle) {
+    const clean = html
+      .replace(/<br\s*\/?>/gi, '<br/>')
+      .replace(/&(?!amp;|lt;|gt;|quot;|apos;)/g, '&amp;');
+    return str2bytes(`<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-BR" xml:lang="pt-BR">
+<head><meta charset="UTF-8"/><title>${chTitle}</title>
+<style>body{font-family:Georgia,serif;font-size:1em;line-height:1.6;margin:3em 2em;color:#1a1a1a;}p{margin-bottom:0.8em;text-align:justify;}h1,h2{color:#163653;}</style>
+</head>
+<body><h1>${chTitle}</h1>${clean}</body>
+</html>`);
+  }
+
+  // ----- Montar o ZIP -----
+  const files = [
+    { name: 'mimetype', data: mimetype },
+    { name: 'META-INF/container.xml', data: container },
+    { name: 'OEBPS/content.opf', data: opf },
+    { name: 'OEBPS/nav.xhtml', data: nav },
+    ...chapters.map((ch, i) => ({
+      name: `OEBPS/ch${i}.xhtml`,
+      data: htmlToXhtml(ch.contentHtml || '<p></p>', ch.title)
+    }))
+  ];
+
+  const localHeaders = [];
+  let offset = 0;
+  files.forEach(f => {
+    const h = localFileHeader(f.name, f.data);
+    localHeaders.push({ header: h, offset });
+    offset += h.length;
+  });
+
+  const centralDirs = files.map((f, i) => centralDir(f.name, localHeaders[i].offset, f.data));
+  let cdSize = centralDirs.reduce((s, c) => s + c.length, 0);
+  const eocdRec = eocd(files.length, cdSize, offset);
+
+  const parts = [...localHeaders.map(h => h.header), ...centralDirs, eocdRec];
+  const totalSize = parts.reduce((s, p) => s + p.length, 0);
+  const result = new Uint8Array(totalSize);
+  let pos = 0;
+  parts.forEach(p => { result.set(p, pos); pos += p.length; });
+
+  const blob = new Blob([result], { type: 'application/epub+zip' });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
-  link.download = `${currentProject.title.toLowerCase().replace(/\s+/g, '_')}.epub`;
+  link.download = `${title.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')}.epub`;
   link.click();
-  alert(`E-book "${currentProject.title}.epub" gerado com sucesso no padrão EPUB 3!`);
+  setTimeout(() => URL.revokeObjectURL(link.href), 60000);
+  showToast(`📥 EPUB 3 real gerado: "${title}" com ${chapters.length} capítulo(s)!`);
 }
 
 // 8. LEITURA AUTOMÁTICA EM VOZ ALTA (WEB SPEECH API)
@@ -1359,7 +1613,18 @@ window.addEventListener('DOMContentLoaded', async () => {
   await initIndexedDb();
   await refreshDashboard();
   updateWoodcutEffect();
+  auditCordelStanza();
+  updateSpineCalculator();
+  renderNewspaperPreview();
 });
+
+// FIX: Toggle menu mobile
+function toggleMobileSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sidebar.classList.toggle('mobile-open');
+  overlay.classList.toggle('active');
+}
 
 // =========================================================
 // 12. MODO DIVERTIDO KIDS
