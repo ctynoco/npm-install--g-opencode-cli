@@ -1,4 +1,4 @@
-﻿# MEU LIVRO EM INSTANTE — ATUALIZADOR AUTOMÁTICO EM POWERSHELL
+# MEU LIVRO EM INSTANTE — ATUALIZADOR AUTOMÁTICO EM POWERSHELL
 $OutputEncoding = [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 Write-Host "==========================================================" -ForegroundColor Cyan

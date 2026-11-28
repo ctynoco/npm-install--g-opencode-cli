@@ -102,6 +102,61 @@ canvas#woodcutCanvas { max-width: 100%; height: auto; border: 1px solid #000; bo
 .reader-highlight { background: #ffeaa7; padding: 2px 4px; border-radius: 3px; font-weight: 700; color: #000; }
 .audio-bar { display: flex; gap: 10px; align-items: center; background: var(--navy); color: #fff; padding: 12px 20px; border-radius: 10px; margin-bottom: 16px; }
 
+/* Kids & Accessibility Mode */
+@keyframes pulse-rec {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.mic-recording {
+  animation: pulse-rec 1.2s infinite !important;
+  background: #e74c3c !important;
+  color: #fff !important;
+  border-color: #c0392b !important;
+}
+body.kids-mode {
+  background: #fdfaf2;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', 'Trebuchet MS', system-ui, sans-serif;
+}
+body.kids-mode .sidebar {
+  background: linear-gradient(180deg, #e17055, #6c5ce7, #0984e3);
+}
+body.kids-mode .logo {
+  animation: pulse-rec 2.5s infinite;
+  font-size: 32px;
+}
+body.kids-mode button {
+  border-radius: 20px;
+  font-size: 14px;
+  padding: 10px 18px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  transition: transform 0.12s, box-shadow 0.12s;
+  font-weight: 700;
+}
+body.kids-mode button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+body.kids-mode .paper-sheet {
+  font-size: 21px;
+  line-height: 1.9;
+  border-radius: 18px;
+  border: 3px dashed #f1c40f;
+  box-shadow: 0 8px 32px rgba(241, 196, 15, 0.3);
+  background: #fffef8;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', 'Trebuchet MS', system-ui, sans-serif;
+}
+body.kids-mode .card {
+  border-radius: 20px;
+  border: 2px solid #f9e79f;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+}
+body.kids-mode .story-actions-bar {
+  background: linear-gradient(135deg, #ff7675, #6c5ce7) !important;
+  border-radius: 18px !important;
+  padding: 14px 18px !important;
+}
+
 /* Responsive */
 @media (max-width: 1050px) {
   .app { grid-template-columns: 1fr; }
@@ -160,6 +215,13 @@ canvas#woodcutCanvas { max-width: 100%; height: auto; border: 1px solid #000; bo
         <span>🏠</span> <strong>Dashboard Editorial</strong>
       </div>
       <div class="top-actions">
+        <!-- Controles de Acessibilidade: Tamanho do Texto -->
+        <div style="display: inline-flex; align-items: center; gap: 4px; background: rgba(22,54,83,0.06); padding: 4px 8px; border-radius: 20px;" title="Acessibilidade: Ajustar Tamanho da Letra">
+          <span style="font-size: 11px; font-weight: 700; color: var(--navy); margin-right: 2px;">Letra:</span>
+          <button class="secondary" style="padding: 2px 8px; font-size: 11px; height: 26px; min-width: 28px;" onclick="adjustAppFontSize(-2)" title="Diminuir tamanho do texto">A-</button>
+          <button class="secondary" style="padding: 2px 8px; font-size: 11px; height: 26px; min-width: 28px;" onclick="adjustAppFontSize(+2)" title="Aumentar tamanho do texto">A+</button>
+        </div>
+        <button class="gold" id="btnToggleKidsMode" style="border-radius: 20px; padding: 7px 15px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;" onclick="toggleKidsMode()">🎈 Modo Divertido (Kids)</button>
         <div class="save-badge" id="saveBadge">✓ Salvo no IndexedDB</div>
         <button class="secondary" onclick="exportCurrentProjectEpub()">📥 Baixar EPUB 3</button>
         <button class="gold" onclick="window.print()">🖨️ Imprimir PDF</button>
@@ -312,6 +374,22 @@ canvas#woodcutCanvas { max-width: 100%; height: auto; border: 1px solid #000; bo
               <button class="secondary" onclick="formatDoc('underline')"><u>U</u></button>
               <button class="gold" onclick="insertDialogueDash()">— Travessão</button>
               <button class="secondary" onclick="cleanPastedText()">🧹 Sanitizar Texto</button>
+              <button class="secondary" id="btnMic" onclick="toggleSpeechRecognition()" title="Ditar com a voz — fale e o texto aparece automaticamente!">🎤 Falar com a Voz</button>
+            </div>
+
+            <!-- CAIXA MÁGICA KIDS — aparece somente no Modo Divertido -->
+            <div id="kidsMagicBox" style="display:none; padding: 12px 16px; margin-bottom: 12px; background: linear-gradient(135deg, #fdcb6e, #e17055, #6c5ce7); border-radius: 18px; box-shadow: 0 6px 24px rgba(109,92,231,0.25);">
+              <div style="font-size: 13px; font-weight: 900; color: #fff; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">✨ Escolha um Tema Mágico para começar sua história:</div>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <button onclick="insertMagicTheme('space')"    style="background:#fff; color:#6c5ce7; border:none; border-radius:16px; padding:8px 14px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.12);">🚀 Espaço</button>
+                <button onclick="insertMagicTheme('dino')"     style="background:#fff; color:#27ae60; border:none; border-radius:16px; padding:8px 14px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.12);">🦕 Dinossauros</button>
+                <button onclick="insertMagicTheme('fairy')"    style="background:#fff; color:#d63031; border:none; border-radius:16px; padding:8px 14px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.12);">🧚 Fadas</button>
+                <button onclick="insertMagicTheme('ocean')"    style="background:#fff; color:#0984e3; border:none; border-radius:16px; padding:8px 14px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.12);">🌊 Fundo do Mar</button>
+                <button onclick="insertMagicTheme('animals')"  style="background:#fff; color:#e17055; border:none; border-radius:16px; padding:8px 14px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.12);">🐶 Bichinhos</button>
+                <button onclick="insertMagicTheme('pirates')"  style="background:#fff; color:#2d3436; border:none; border-radius:16px; padding:8px 14px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.12);">🏴‍☠️ Piratas</button>
+                <button onclick="insertMagicTheme('magic')"    style="background:#fff; color:#6c5ce7; border:none; border-radius:16px; padding:8px 14px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.12);">🔮 Magia</button>
+              </div>
+              <div style="margin-top:10px; font-size:11px; color:rgba(255,255,255,0.85);">💡 Clique em qualquer tema e uma história aparece pronta para você continuar com seus próprios personagens!</div>
             </div>
 
             <div class="paper-sheet" id="editorPaper" contenteditable="true" oninput="handleEditorInput()">
@@ -1282,6 +1360,165 @@ window.addEventListener('DOMContentLoaded', async () => {
   await refreshDashboard();
   updateWoodcutEffect();
 });
+
+// =========================================================
+// 12. MODO DIVERTIDO KIDS
+// =========================================================
+
+let kidsActive = false;
+let micRecognition = null;
+let micListening = false;
+let appFontSize = 16; // px base
+
+function adjustAppFontSize(delta) {
+  appFontSize = Math.min(28, Math.max(12, appFontSize + delta));
+  document.documentElement.style.fontSize = appFontSize + 'px';
+}
+
+function toggleKidsMode() {
+  kidsActive = !kidsActive;
+  document.body.classList.toggle('kids-mode', kidsActive);
+
+  const btn = document.getElementById('btnToggleKidsMode');
+  const box = document.getElementById('kidsMagicBox');
+
+  if (kidsActive) {
+    btn.textContent = '👦 Modo Normal';
+    btn.style.background = '#6c5ce7';
+    if (box) box.style.display = 'block';
+    // Ajustar fonte para crianças
+    adjustAppFontSize(0); // garante aplicação
+    // Saudação de boas-vindas por voz
+    const saud = new SpeechSynthesisUtterance(
+      'Olá! Seja muito bem-vindo ao Meu Livro em Instante! Vamos criar uma história incrível juntos?'
+    );
+    saud.lang = 'pt-BR';
+    saud.rate = 0.9;
+    saud.pitch = 1.2;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(saud);
+    showToast('🎈 Modo Divertido ativado! Escolha um tema mágico abaixo.');
+  } else {
+    btn.textContent = '🎈 Modo Divertido (Kids)';
+    btn.style.background = '';
+    if (box) box.style.display = 'none';
+    speechSynthesis.cancel();
+    showToast('Voltou para o modo normal.');
+  }
+}
+
+function toggleSpeechRecognition() {
+  const SRClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const btn = document.getElementById('btnMic');
+
+  if (!SRClass) {
+    showToast('⚠️ Seu navegador não suporta ditado por voz. Use Chrome ou Edge.');
+    return;
+  }
+
+  if (micListening) {
+    // Parar gravação
+    micRecognition && micRecognition.stop();
+    micListening = false;
+    btn.classList.remove('mic-recording');
+    btn.textContent = '🎤 Falar com a Voz';
+    return;
+  }
+
+  micRecognition = new SRClass();
+  micRecognition.lang = 'pt-BR';
+  micRecognition.interimResults = true;
+  micRecognition.continuous = true;
+
+  micListening = true;
+  btn.classList.add('mic-recording');
+  btn.textContent = '🔴 Parar Gravação';
+
+  let lastFinal = '';
+
+  micRecognition.onresult = (event) => {
+    let interim = '';
+    let finalText = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        finalText += t;
+      } else {
+        interim += t;
+      }
+    }
+    if (finalText && finalText !== lastFinal) {
+      lastFinal = finalText;
+      document.execCommand('insertText', false, finalText + ' ');
+      handleEditorInput();
+    }
+  };
+
+  micRecognition.onerror = () => {
+    micListening = false;
+    btn.classList.remove('mic-recording');
+    btn.textContent = '🎤 Falar com a Voz';
+  };
+
+  micRecognition.onend = () => {
+    if (micListening) {
+      // Reiniciar automaticamente para gravação contínua
+      try { micRecognition.start(); } catch (e) {}
+    }
+  };
+
+  micRecognition.start();
+  showToast('🎤 Ouvindo... Fale agora! Clique novamente para parar.');
+}
+
+function insertMagicTheme(theme) {
+  const temas = {
+    space: `<p>🚀 <strong>Uma Aventura no Espaço!</strong></p>
+<p>Era uma vez uma criança corajosa chamada <em>Luma</em>, que morava em uma nave espacial colorida chamada "Estrela Dourada". Certo dia, o computador da nave piscou três vezes e apareceu uma mensagem misteriosa: <strong>"Planeta desconhecido à frente!"</strong></p>
+<p>Luma colocou seu capacete reluzente, apertou o cinto e disse para o robô copiloto: — Vamos lá, Zap! Essa aventura vai ser incrível!</p>`,
+
+    dino: `<p>🦕 <strong>O Dinossauro que Gostava de Livros!</strong></p>
+<p>No tempo em que os dinossauros ainda andavam pela Terra, havia um Braquiossauro chamado <em>Bromito</em> que adorava ler. Mas há um problema: seus braços eram <em>muito</em> curtos para virar as páginas!</p>
+<p>— Preciso de um amigo com mãos menores — pensou Bromito, e saiu pelo vale verde em busca de ajuda.</p>`,
+
+    fairy: `<p>🧚 <strong>A Fada das Palavras Perdidas!</strong></p>
+<p>No reino encantado de <em>Palavrinha</em>, as letras viviam voando pelo ar como borboletas coloridas. A fada <strong>Silvia</strong> era a guardiã de todas elas — mas naquela manhã, as vogais <em>A, E, I, O, U</em> tinham sumido!</p>
+<p>— Sem vogais, ninguém consegue escrever! — exclamou Silvia, abrindo suas asas prateadas para começar a grande busca.</p>`,
+
+    ocean: `<p>🌊 <strong>No Fundo do Mar Misterioso!</strong></p>
+<p>A peixinha <em>Coral</em> nadava entre corais coloridíssimos quando encontrou uma garrafa com um bilhete dentro. Com as nadadeiras tremendo de curiosidade, ela abriu o papelzinho e leu: <strong>"Quem achar isso, venha ao Palácio das Pérolas — precisamos de você!"</strong></p>
+<p>Coral olhou para o fundo escuro do oceano e respirou fundo. — Hoje é o dia da grande aventura! — disse ela.</p>`,
+
+    animals: `<p>🐶 <strong>A Turma dos Bichinhos da Floresta!</strong></p>
+<p>Na Floresta do Abraço, onde todas as árvores tinham nomes, morava uma cachorrinha chamada <em>Faísca</em>. Ela tinha três melhores amigos: <strong>Totó</strong> o coelho veloz, <strong>Borreguinho</strong> a ovelhinha que cantava, e <strong>Pingo</strong> o sapo-cantor.</p>
+<p>Numa tarde de sol, os quatro encontraram uma mochila perdida no meio do caminho. Dentro dela havia um mapa com um grande X vermelho...</p>`,
+
+    pirates: `<p>🏴‍☠️ <strong>Piratas do Tesouro Escondido!</strong></p>
+<p>Ahoy! No mar de <em>Mil Ilhas</em>, a jovem capitã <strong>Marina</strong> comandava um barquinho chamado "Vento Alegre". Ela usava um chapéu de pirata com uma pluma laranja e tinha um papagaio chamado <em>Caju</em> que só sabia dizer palavras inventadas.</p>
+<p>— Caju! Olha lá! — gritou Marina apontando pro horizonte. Era uma ilha que não estava em nenhum mapa!</p>`,
+
+    magic: `<p>🔮 <strong>O Livro que Virava Realidade!</strong></p>
+<p>Na biblioteca mais misteriosa do mundo, escondida atrás de uma livraria de bairro, havia um livro com capa roxa e letras douradas. Ninguém sabia o título — porque ele mudava toda vez que alguém tentava ler.</p>
+<p>Quando a criança <em>Tomás</em> tocou a capa pela primeira vez, as letras tremelicaram e formaram uma frase: <strong>"Bem-vindo. Este livro é sobre VOCÊ."</strong></p>
+<p>Tomás engoliu em seco, puxou uma cadeira e começou a ler...</p>`
+  };
+
+  const html = temas[theme] || temas.space;
+  const paper = document.getElementById('editorPaper');
+  paper.innerHTML = html;
+  handleEditorInput();
+
+  // Leitura automática do trecho inserido
+  const texto = paper.innerText;
+  const utter = new SpeechSynthesisUtterance(texto);
+  utter.lang = 'pt-BR';
+  utter.rate = 0.88;
+  utter.pitch = 1.1;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
+
+  showToast('✨ História mágica inserida e sendo lida em voz alta! Continue escrevendo!');
+}
 </script>
 </body>
 </html>
